@@ -829,10 +829,12 @@ void processPoints(vector< vector< Point2f > > corners, vector<int> ids,
     
     thisFrameCorners.reserve((size_t) nMarkersInThisFrame);
     thisFrameIds.reserve((size_t) nMarkersInThisFrame);
+    
     for(int j = markerCounter; j < markerCounter + nMarkersInThisFrame; j++) {
       thisFrameCorners.push_back(corners[j]);
       thisFrameIds.push_back(ids[j]);
     }
+    
     markerCounter += nMarkersInThisFrame;
     vector< Point2f > currentImgPoints;
     vector< Point3f > currentObjPoints;
@@ -840,6 +842,15 @@ void processPoints(vector< vector< Point2f > > corners, vector<int> ids,
     getObjectAndImagePoints(thisFrameCorners, thisFrameIds, currentObjPoints,
                             currentImgPoints, currentBoard);
     if(currentImgPoints.size() > 0 && currentObjPoints.size() > 0) {
+      processedImagePoints.push_back(currentImgPoints);
+      processedObjectPoints.push_back(currentObjPoints);
+    }
+
+    else {
+      for (int i=0; i < 4; i++){
+	currentImgPoints.push_back(Point2f(-1,-1));
+	currentObjPoints.push_back(Point3f(-1,-1,0));
+      }
       processedImagePoints.push_back(currentImgPoints);
       processedObjectPoints.push_back(currentObjPoints);
     }
@@ -866,8 +877,8 @@ void setUpAruco( Settings s, intrinsicCalibration &inCal, intrinsicCalibration &
   vector< vector<Point3f>> processedObjectPoints1 ;
   
   processPoints(allCornersConcatenated1,
-		     allIdsConcatenated1, markerCounterPerFrame1,
-		     processedImagePoints1, processedObjectPoints1, currentBoard);
+		allIdsConcatenated1, markerCounterPerFrame1,
+		processedImagePoints1, processedObjectPoints1, currentBoard);
   
   inCal.objectPoints = processedObjectPoints1;
   inCal.imagePoints =processedImagePoints1;
@@ -909,10 +920,13 @@ void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBo
 
   Ptr<aruco::DetectorParameters> detectorParams = aruco::DetectorParameters::create();
 
-  detectorParams-> doCornerRefinement = true; // do corner refinement in markers
+  // do corner refinement in markers
+  detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_SUBPIX; 
   detectorParams-> cornerRefinementWinSize = 4;
   detectorParams->  minMarkerPerimeterRate = 0.02; 
   detectorParams-> cornerRefinementMinAccuracy = 0.05;
+  detectorParams->  minMarkerPerimeterRate = 0.02;
+  detectorParams->  maxMarkerPerimeterRate = 4 ;
 
   
   Mat imgCopy;
@@ -923,10 +937,25 @@ void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBo
                        currentBoard->corners, currentBoard->ids,
                        detectorParams, currentBoard->rejected);
   
-  
-  InCal.allCorners.push_back(currentBoard->corners);
-  InCal.allIds.push_back(currentBoard->ids);
-  s.imageSize = img.size();
+  if (currentBoard->ids.size() > 0){ 
+    InCal.allCorners.push_back(currentBoard->corners); 
+    InCal.allIds.push_back(currentBoard->ids);
+    s.imageSize = img.size();
+  }
+  else if (currentBoard->ids.size() == 0 && s.mode == Settings::STEREO) {
+
+    vector < Point2f > temp;
+    
+    for (int i=0 ; i < 4; i++){
+      temp.push_back(Point2f(-1,-1));
+    }
+    currentBoard->corners.push_back(temp);
+    currentBoard->ids.push_back(-1);
+
+    InCal.allCorners.push_back(currentBoard->corners);
+    InCal.allIds.push_back(currentBoard->ids);
+    
+  }
 
 }
 
@@ -1076,13 +1105,12 @@ stereoCalibration runStereoCalibration(Settings s, intrinsicCalibration &inCal, 
     }
 
    
-    
-    // Stereo calibration requires both images to have the same # of image and object points, but
-    // getSharedPoints limits the points lists to only those points shared between each image
+    /*
     if (s.calibrationPattern != Settings::CHESSBOARD) {     //ArUco pattern
     
       getSharedPoints(inCal, inCal2);
     }
+    */
    
 
    
@@ -1115,32 +1143,40 @@ void runCalibrationAndSave(Settings s, intrinsicCalibration &inCal, intrinsicCal
     if (s.mode == Settings::STEREO) {         // stereo calibration
         if (!s.useIntrinsicInput)
         {
-        ok = runIntrinsicCalibration(s, inCal);
-        
-        printf("%s for left. Avg reprojection error = %.4f\n",
-                ok ? "\nIntrinsic calibration succeeded" : "\nIntrinsic calibration failed",
-                inCal.totalAvgErr);
+
+	  // Stereo calibration requires both images to have the same # of image and object points;
+	  // getSharedPoints limits the points lists to only those points shared between each image
+	  if (s.calibrationPattern != Settings::CHESSBOARD) {     //ArUco pattern
+	    getSharedPoints(inCal, inCal2);
+	  }
+	  
+	  ok = runIntrinsicCalibration(s, inCal);
+	  
+	  printf("%s for left. Avg reprojection error = %.4f\n",
+		 ok ? "\nIntrinsic calibration succeeded" : "\nIntrinsic calibration failed",
+		 inCal.totalAvgErr);
         ok = runIntrinsicCalibration(s, inCal2);
         
         printf("%s for right. Avg reprojection error = %.4f\n",
-                ok ? "\nIntrinsic calibration succeeded" : "\nIntrinsic calibration failed",
-                inCal2.totalAvgErr);
+	       ok ? "\nIntrinsic calibration succeeded" : "\nIntrinsic calibration failed",
+	       inCal2.totalAvgErr);
         } else
-            ok = true;
+	  ok = true;
 
         stereoCalibration sterCal = runStereoCalibration(s, inCal, inCal2);
         s.saveExtrinsics(sterCal);
 
+	
     } else {                        // intrinsic calibration
-        ok = runIntrinsicCalibration(s, inCal);
-        printf("%s. Avg reprojection error = %.4f\n",
-                ok ? "\nIntrinsic calibration succeeded" : "\nIntrinsic calibration failed",
-                inCal.totalAvgErr);
-
-        if( ok ) {
-            undistortImages(s, inCal);
-            s.saveIntrinsics(inCal);
-        }
+      ok = runIntrinsicCalibration(s, inCal);
+      printf("%s. Avg reprojection error = %.4f\n",
+	     ok ? "\nIntrinsic calibration succeeded" : "\nIntrinsic calibration failed",
+	     inCal.totalAvgErr);
+      
+      if( ok ) {
+	undistortImages(s, inCal);
+	s.saveIntrinsics(inCal);
+      }
     }
 }
 
