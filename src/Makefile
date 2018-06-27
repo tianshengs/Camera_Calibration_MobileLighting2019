@@ -1,6 +1,6 @@
 SRC = calibration.cpp calibrateWithSettings.cpp
 
-BIN = calibrateWithSettings 
+BIN = calibrateWithSettings detection_check
 
 DBG= -g
 CC = g++
