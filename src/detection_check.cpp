@@ -584,7 +584,7 @@ void getSharedPoints(intrinsicCalibration &inCal, intrinsicCalibration &inCal2)
 	  paddingPoints = false;
         }
 
-	if ((int) sharedObjectPoints.size() > 5){
+	if ((int) sharedObjectPoints.size() > 10){
 	  
 	  *oPoints = sharedObjectPoints;
 	  *oPoints2 = sharedObjectPoints;
@@ -592,7 +592,7 @@ void getSharedPoints(intrinsicCalibration &inCal, intrinsicCalibration &inCal2)
 	  *iPoints2 = sharedImagePoints2;	
 	}
 	
-	else if ((int) sharedObjectPoints.size() < 5 || paddingPoints) {
+	else if ((int) sharedObjectPoints.size() < 10 || paddingPoints) {
 	  
 	  inCal.objectPoints.erase(inCal.objectPoints.begin()+i);
 	  inCal2.objectPoints.erase(inCal2.objectPoints.begin()+i);
@@ -622,7 +622,6 @@ void getObjectAndImagePoints( vector< vector< Point2f > >  detectedCorners, vect
             if(currentId == currentBoard->ids_vector[j]) {
                 for(int p = 0; p < 4; p++) {
                     objPoints.push_back(currentBoard->obj_points_vector[j][p]);
-
                     imgPoints.push_back(detectedCorners[i][p]);
                     
                 }
@@ -733,17 +732,17 @@ void setUpAruco( Settings s, intrinsicCalibration &inCal, intrinsicCalibration &
 
 
 
-void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBoard> currentBoard,  int i){
+void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBoard> currentBoard,  int i, int n){
 
 
   Ptr<aruco::DetectorParameters> detectorParams = aruco::DetectorParameters::create();
 
   detectorParams-> doCornerRefinement = true; // do corner refinement in markers
   detectorParams-> cornerRefinementWinSize = 4;
-  detectorParams->  minMarkerPerimeterRate = 0.02; 
-  detectorParams-> cornerRefinementMinAccuracy = 0.05;
-  detectorParams->  minMarkerPerimeterRate = 0.02;
+  detectorParams->  minMarkerPerimeterRate = 0.01;
   detectorParams->  maxMarkerPerimeterRate = 4 ;
+  detectorParams-> cornerRefinementMinAccuracy = 0.05;
+
   
   Mat imgCopy;
   
@@ -756,6 +755,7 @@ void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBo
   
   
   cout << "Number of markers detected for image" << i
+       << " and " << s.markersX[n] << "x" << s.markersY[n] << " board"
        << " is " 
        << currentBoard->corners.size() << endl;
   
@@ -796,17 +796,13 @@ int main( int argc, char **argv  )
 
 {
 
-  
-  //const string& filename
-  //const string inputSettingsFile
 
   if(argc < 2) 
     cout << "invalid number of inputs" << endl;
   
 
   string inputSettingsFile = argv[1];
-  //string filename0 = argv[2] ;
-  //string filename1 = argv[3] ;
+ 
 
   Mat img0;
   img0 = imread( argv[2], CV_LOAD_IMAGE_COLOR );
@@ -836,16 +832,6 @@ int main( int argc, char **argv  )
   
   // size for stereo calibration
   int size = (s.mode == Settings::STEREO) ? s.nImages/2 : s.nImages;
-  
-  
-  /*
-    inCal.imagePoints.resize(size);
-    inCal.objectPoints.resize(size);
-    inCal2.imagePoints.resize(size);
-    inCal2.objectPoints.resize(size);
-    cout << inCal2.objectPoints.size() << endl;
-  */
-  
    
   
   char imgSave[1000];
@@ -956,8 +942,8 @@ int main( int argc, char **argv  )
 	      }
 
 	      getSharedPoints(inCal, inCal2);
-	      cout << "Number of shared objectPoints is " << inCal.objectPoints.size() << endl;
-	      if (inCal.objectPoints.size() < 5)
+	      cout << "Number of shared objectPoints for board " << n << " is " << inCal.objectPoints[0].size() << endl;
+	      if (inCal.objectPoints[0].size() < 10)
 		cout << "Not Good!" << endl;
 	      
 	    }
@@ -970,7 +956,7 @@ int main( int argc, char **argv  )
 	  Mat imgCopy;
 	    
 	  for(int n = 0; n< s.numberOfBoards; n++){
-	    arucoDetect(s, currentImg, *currentInCal, boardsList[n], i);
+	    arucoDetect(s, currentImg, *currentInCal, boardsList[n], i, n);
 	    currentInCal = &inCalList[(i+1)% s.numberOfBoards][value];    
 	    if(save) {
 	      sprintf(imgSave, "%sdetected_%d.jpg", s.detectedPath.c_str(), i);
