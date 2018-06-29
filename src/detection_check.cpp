@@ -74,6 +74,8 @@ using namespace aruco;
 using namespace std;
 
 
+vector<  int  > returnVector;
+
 //global variables for AruCo calibration 
 vector< vector< Point2f > > allCornersConcatenated1;
 vector< int > allIdsConcatenated1;
@@ -551,6 +553,18 @@ void getSharedPoints(intrinsicCalibration &inCal, intrinsicCalibration &inCal2)
     vector<Point2f> *iPoints, *iPoints2;
     int shared;     //index of a shared object point
     bool paddingPoints = false;
+
+    /*
+    int count;
+    bool switch = false;
+    
+    if ((int)inCal.objectPoints.size() >= (int)inCal2.objectPoints.size())
+      count = (int)inCal.objectPoints.size();
+    else 
+    */
+
+    //cout << (int)inCal.objectPoints.size() << endl;
+    //cout << (int)inCal2.objectPoints.size() << endl;
     
     //for each objectPoints vector in overall objectPoints vector of vectors
     for (int i=0; i< (int)inCal.objectPoints.size(); i++)
@@ -565,25 +579,46 @@ void getSharedPoints(intrinsicCalibration &inCal, intrinsicCalibration &inCal2)
         iPoints2 = &inCal2.imagePoints.at(i);
 
 	
-        for (int j=0; j<(int)oPoints->size(); j++)
-        {
-	  if (oPoints->at(0) == Point3f(-1,-1,0)) {
-	    
-	    paddingPoints = true;
-	    break;
+        if ((int)oPoints->size() >= (int)oPoints2->size()){
+	  for (int j=0; j<(int)oPoints->size(); j++){
+	      if (oPoints->at(0) == Point3f(-1,-1,0)) {		
+		paddingPoints = true;
+		break;
+	      }
+	      
+	      for (shared=0; shared<(int)oPoints2->size(); shared++)
+		if (oPoints->at(j) == oPoints2->at(shared)) break;
+	      if (shared != (int)oPoints2->size())       //object point is shared
+		{    
+		  sharedObjectPoints.push_back(oPoints->at(j));
+		  sharedImagePoints.push_back(iPoints->at(j));
+		  sharedImagePoints2.push_back(iPoints2->at(shared));
+		}
+	      paddingPoints = false;
+	    }
 	  }
+      
+	else {
+	  for (int j=0; j<(int)oPoints2->size(); j++) {
+	      if (oPoints2->at(0) == Point3f(-1,-1,0)) {		
+		paddingPoints = true;
+		break;
+	      }
+	      
+	      for (shared=0; shared<(int)oPoints->size(); shared++)
+		if (oPoints2->at(j) == oPoints->at(shared)) break;
+	      if (shared != (int)oPoints->size())       //object point is shared
+		{    
+		  sharedObjectPoints.push_back(oPoints2->at(j));
+		  sharedImagePoints2.push_back(iPoints2->at(j));
+		  sharedImagePoints.push_back(iPoints->at(shared));
+		}
+	      paddingPoints = false;
+	    }
+	  }
+	
 	  
-	  for (shared=0; shared<(int)oPoints2->size(); shared++)
-	    if (oPoints->at(j) == oPoints2->at(shared)) break;
-	  if (shared != (int)oPoints2->size())       //object point is shared
-            {    
-	      sharedObjectPoints.push_back(oPoints->at(j));
-	      sharedImagePoints.push_back(iPoints->at(j));
-	      sharedImagePoints2.push_back(iPoints2->at(shared));
-            }
-	  paddingPoints = false;
-        }
-
+	
 	if ((int) sharedObjectPoints.size() > 10){
 	  
 	  *oPoints = sharedObjectPoints;
@@ -675,7 +710,7 @@ void processPoints(vector< vector< Point2f > > corners, vector<int> ids,
   }
 }
 
-void setUpAruco( Settings s, intrinsicCalibration &inCal, intrinsicCalibration &inCal2, Ptr<ChessBoard> &currentBoard){
+void setUpAruco( Settings s, intrinsicCalibration &inCal, intrinsicCalibration &inCal2, Ptr<ChessBoard> &currentBoard, int n){
 
   // Clear these temporary storage vectors (decleared globally)
   allCornersConcatenated1.clear();
@@ -727,12 +762,26 @@ void setUpAruco( Settings s, intrinsicCalibration &inCal, intrinsicCalibration &
     
     inCal2.objectPoints = processedObjectPoints2;
     inCal2.imagePoints =processedImagePoints2;
+
+    
+    cout << "Number of objectPoints detected for image 0"
+	 << " and the " << s.markersX[n] << "x" << s.markersY[n] << " board"
+	 << " is " 
+	 << inCal.objectPoints[0].size() << endl;
+    cout << "Number of objectPoints detected for image 1"
+	 << " and the " << s.markersX[n] << "x" << s.markersY[n] << " board"
+	 << " is " 
+	 << inCal2.objectPoints[0].size() << endl;
+
+    returnVector.push_back((int)inCal.objectPoints[0].size());
+    returnVector.push_back((int)inCal2.objectPoints[0].size());
+    
   }
 }
 
 
 
-void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBoard> currentBoard,  int i, int n){
+void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBoard> currentBoard){
 
 
   Ptr<aruco::DetectorParameters> detectorParams = aruco::DetectorParameters::create();
@@ -752,13 +801,7 @@ void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBo
                        currentBoard->corners, currentBoard->ids,
                        detectorParams, currentBoard->rejected);
 
-  
-  
-  cout << "Number of markers detected for image" << i
-       << " and " << s.markersX[n] << "x" << s.markersY[n] << " board"
-       << " is " 
-       << currentBoard->corners.size() << endl;
-  
+ 
   
   if (currentBoard->ids.size() > 0){ 
     InCal.allCorners.push_back(currentBoard->corners); 
@@ -792,29 +835,27 @@ void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBo
 
 
 // Main function. Detects patterns on images, runs calibration and saves results
-int main( int argc, char **argv  )
+vector<int> detectionCheck( char* settingsFile, char* filename0, char* filename1  )
 
 {
 
-
-  if(argc < 2) 
-    cout << "invalid number of inputs" << endl;
   
 
-  string inputSettingsFile = argv[1];
+  string inputSettingsFile = settingsFile;
  
 
   Mat img0;
-  img0 = imread( argv[2], CV_LOAD_IMAGE_COLOR );
+  img0 = imread( filename0, CV_LOAD_IMAGE_COLOR );
   Mat img1;
-  img1 = imread( argv[3], CV_LOAD_IMAGE_COLOR );
+  img1 = imread( filename1, CV_LOAD_IMAGE_COLOR );
   
+
   Settings s;
   FileStorage fs(inputSettingsFile, FileStorage::READ);   // Read the settings
   if (!fs.isOpened())
     {
       cout << "Could not open the settings file: \"" << inputSettingsFile << "\"" << endl;
-      return -1;
+      return returnVector;
     }
   fs["Settings"] >> s;
   fs.release();                                         // close Settings file
@@ -822,7 +863,7 @@ int main( int argc, char **argv  )
   if (!s.goodInput)
     {
       cout << "Invalid input detected. Application stopping. " << endl;
-      return -1;
+      return returnVector;
     }
 
   
@@ -911,8 +952,8 @@ int main( int argc, char **argv  )
 
 	    for(int n = 0; n< s.numberOfBoards; n++){
 	      
-	      setUpAruco(s, inCalList[n][0], inCalList[n][1], boardsList[n]);
-
+	      setUpAruco(s, inCalList[n][0], inCalList[n][1], boardsList[n], n);
+	   
 	      
 	      // inCal is the final structure used for the calibration.
 	      //  Thus, move all the processed objectPoints from the first viewpoint
@@ -942,9 +983,13 @@ int main( int argc, char **argv  )
 	      }
 
 	      getSharedPoints(inCal, inCal2);
-	      cout << "Number of shared objectPoints for board " << n << " is " << inCal.objectPoints[0].size() << endl;
+	      cout << "Number of shared objectPoints for this board is " 
+		   << inCal.objectPoints[n].size() << endl;
 	      if (inCal.objectPoints[0].size() < 10)
 		cout << "Not Good!" << endl;
+
+	      returnVector.push_back((int)inCal.objectPoints[n].size());
+	      
 	      
 	    }
 	    
@@ -956,7 +1001,7 @@ int main( int argc, char **argv  )
 	  Mat imgCopy;
 	    
 	  for(int n = 0; n< s.numberOfBoards; n++){
-	    arucoDetect(s, currentImg, *currentInCal, boardsList[n], i, n);
+	    arucoDetect(s, currentImg, *currentInCal, boardsList[n]);
 	    currentInCal = &inCalList[(i+1)% s.numberOfBoards][value];    
 	    if(save) {
 	      sprintf(imgSave, "%sdetected_%d.jpg", s.detectedPath.c_str(), i);
@@ -965,7 +1010,7 @@ int main( int argc, char **argv  )
 	  }
 	}
     }
-    
-    return 0;
+
+    return returnVector;
 }
 

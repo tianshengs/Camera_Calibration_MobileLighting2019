@@ -730,6 +730,7 @@ void getSharedPoints(intrinsicCalibration &inCal, intrinsicCalibration &inCal2)
     vector<Point3f> *oPoints, *oPoints2;
     vector<Point2f> *iPoints, *iPoints2;
     int shared;     //index of a shared object point
+    bool paddingPoints = false;
     
     //for each objectPoints vector in overall objectPoints vector of vectors
     for (int i=0; i< (int)inCal.objectPoints.size(); i++)
@@ -743,26 +744,46 @@ void getSharedPoints(intrinsicCalibration &inCal, intrinsicCalibration &inCal2)
         iPoints  = &inCal.imagePoints.at(i);
         iPoints2 = &inCal2.imagePoints.at(i);
 
- 	
-        for (int j=0; j<(int)oPoints->size(); j++)
-	  {
-	    if (oPoints->at(0) == Point3f(-1,-1,0)) {
-	      
-	      paddingPoints = true;
-	      break;
-	    }
-            for (shared=0; shared<(int)oPoints2->size(); shared++)
-	      if (oPoints->at(j) == oPoints2->at(shared)) break;
-            if (shared != (int)oPoints2->size())       //object point is shared
+	
+        if ((int)oPoints->size() >= (int)oPoints2->size()){
+	  for (int j=0; j<(int)oPoints->size(); j++)
+	    {
+	      if (oPoints->at(0) == Point3f(-1,-1,0)) {
+		
+		paddingPoints = true;
+		break;
+	      }
+	      for (shared=0; shared<(int)oPoints2->size(); shared++)
+		if (oPoints->at(j) == oPoints2->at(shared)) break;
+	      if (shared != (int)oPoints2->size())       //object point is shared
 	      {
 		
-	      sharedObjectPoints.push_back(oPoints->at(j));
-	      sharedImagePoints.push_back(iPoints->at(j));
-	      sharedImagePoints2.push_back(iPoints2->at(shared));
-            }
-	    paddingPoints = false;
-        }
-
+		sharedObjectPoints.push_back(oPoints->at(j));
+		sharedImagePoints.push_back(iPoints->at(j));
+		sharedImagePoints2.push_back(iPoints2->at(shared));
+	      }
+	      paddingPoints = false;
+	    }
+	}
+	else {
+	  for (int j=0; j<(int)oPoints2->size(); j++) {
+	      if (oPoints2->at(0) == Point3f(-1,-1,0)) {		
+		paddingPoints = true;
+		break;
+	      }
+	      
+	      for (shared=0; shared<(int)oPoints->size(); shared++)
+		if (oPoints2->at(j) == oPoints->at(shared)) break;
+	      if (shared != (int)oPoints->size())       //object point is shared
+		{    
+		  sharedObjectPoints.push_back(oPoints2->at(j));
+		  sharedImagePoints2.push_back(iPoints2->at(j));
+		  sharedImagePoints.push_back(iPoints->at(shared));
+		}
+	      paddingPoints = false;
+	  }
+	}
+	
 	if ((int) sharedObjectPoints.size() > 10){
 	*oPoints = sharedObjectPoints;
 	*oPoints2 = sharedObjectPoints;
@@ -952,7 +973,8 @@ void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBo
   Ptr<aruco::DetectorParameters> detectorParams = aruco::DetectorParameters::create();
 
   // do corner refinement in markers
-  detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_SUBPIX; 
+  //detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_SUBPIX;
+  detectorParams-> doCornerRefinement = true; // do corner refinement in markers
   detectorParams-> cornerRefinementWinSize = 4;
   detectorParams->  minMarkerPerimeterRate = 0.01;
   detectorParams->  maxMarkerPerimeterRate = 4 ;
@@ -1180,6 +1202,7 @@ void runCalibrationAndSave(Settings s, intrinsicCalibration &inCal, intrinsicCal
 	  if (s.calibrationPattern != Settings::CHESSBOARD) {     //ArUco pattern
 	    getSharedPoints(inCal, inCal2);
 	  }
+	  cout << inCal.objectPoints.size() << endl;
 	  
 	  ok = runIntrinsicCalibration(s, inCal);
 	  
