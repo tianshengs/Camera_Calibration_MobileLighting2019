@@ -1158,12 +1158,12 @@ stereoCalibration runStereoCalibration(Settings s, intrinsicCalibration &inCal, 
     }
 
    
-    /*
+    
     if (s.calibrationPattern != Settings::CHESSBOARD) {     //ArUco pattern
     
       getSharedPoints(inCal, inCal2);
     }
-    */
+    
    
 
    
