@@ -189,7 +189,7 @@ public:
 
         
         node["Num_MarkersX"] >> markersX;
-        node["Num_MarkersX"] >> markersY;
+        node["Num_MarkersY"] >> markersY;
         node["Marker_Length"] >> markerLength;
         node["Dictionary"] >> dictionary;
         node["First_Marker"] >> type;
@@ -737,7 +737,7 @@ void getSharedPoints(intrinsicCalibration &inCal, intrinsicCalibration &inCal2)
     {
       
         vector<Point3f> sharedObjectPoints;
-        vector<Point2f> sharedImagePoints, sharedImagePoints2;   //shared image points for each inCal
+        vector<Point2f> sharedImagePoints, sharedImagePoints2; //shared image points for each inCal
 
         oPoints = &inCal.objectPoints.at(i);
         oPoints2 = &inCal2.objectPoints.at(i);
@@ -797,6 +797,13 @@ void getSharedPoints(intrinsicCalibration &inCal, intrinsicCalibration &inCal2)
 	  inCal2.objectPoints.erase(inCal2.objectPoints.begin()+i);
 	  inCal.imagePoints.erase(inCal.imagePoints.begin()+i);
 	  inCal2.imagePoints.erase(inCal2.imagePoints.begin()+i);
+
+	  // temp: if no objectPoints left, then break from loop already
+	  if (inCal.objectPoints.size() <= 0){
+	    inCal.objectPoints[0].clear();
+	    inCal2.objectPoints[0].clear();
+	    break;
+	  }
 
 	  // decrement i because we removed one element
 	  //  from the beginning of the vector, inCal.objectPoints.
@@ -865,7 +872,7 @@ void getObjectAndImagePoints( vector< vector< Point2f > >  detectedCorners, vect
 }
 
 
-void processPoints(vector< vector< Point2f > > corners, vector<int> ids,
+void processPoints(Settings s, vector< vector< Point2f > > corners, vector<int> ids,
                         vector<int> counter,                      
                         vector< vector < Point2f >> &processedImagePoints,
                         vector< vector<Point3f>> &processedObjectPoints,  Ptr<ChessBoard> &currentBoard) {
@@ -898,7 +905,8 @@ void processPoints(vector< vector< Point2f > > corners, vector<int> ids,
       processedObjectPoints.push_back(currentObjPoints);
     }
 
-    else {
+    else if (currentImgPoints.size() < 1 && currentObjPoints.size() < 1 && s.mode == Settings::STEREO) {
+      
       for (int i=0; i < 4; i++){
 	currentImgPoints.push_back(Point2f(-1,-1));
 	currentObjPoints.push_back(Point3f(-1,-1,0));
@@ -928,7 +936,7 @@ void setUpAruco( Settings s, intrinsicCalibration &inCal, intrinsicCalibration &
   vector< vector < Point2f >>  processedImagePoints1;
   vector< vector<Point3f>> processedObjectPoints1 ;
   
-  processPoints(allCornersConcatenated1,
+  processPoints(s, allCornersConcatenated1,
 		allIdsConcatenated1, markerCounterPerFrame1,
 		processedImagePoints1, processedObjectPoints1, currentBoard);
   
@@ -956,7 +964,7 @@ void setUpAruco( Settings s, intrinsicCalibration &inCal, intrinsicCalibration &
     vector< vector < Point2f >>  processedImagePoints2;
     vector< vector<Point3f>> processedObjectPoints2;
     
-    processPoints(allCornersConcatenated2,
+    processPoints(s, allCornersConcatenated2,
 		       allIdsConcatenated2, markerCounterPerFrame2,
 		       processedImagePoints2, processedObjectPoints2, currentBoard);
     
