@@ -163,7 +163,7 @@ public:
         node["Calibration_Pattern"] >> patternInput;
         
         node["Num_MarkersX"] >> markersX;
-        node["Num_MarkersX"] >> markersY;
+        node["Num_MarkersY"] >> markersY;
         node["Marker_Length"] >> markerLength;
         node["Dictionary"] >> dictionary;
         node["First_Marker"] >> type;
@@ -553,23 +553,12 @@ void getSharedPoints(intrinsicCalibration &inCal, intrinsicCalibration &inCal2)
     vector<Point2f> *iPoints, *iPoints2;
     int shared;     //index of a shared object point
     bool paddingPoints = false;
-
-    /*
-    int count;
-    bool switch = false;
-    
-    if ((int)inCal.objectPoints.size() >= (int)inCal2.objectPoints.size())
-      count = (int)inCal.objectPoints.size();
-    else 
-    */
-
-    //cout << (int)inCal.objectPoints.size() << endl;
-    //cout << (int)inCal2.objectPoints.size() << endl;
     
     //for each objectPoints vector in overall objectPoints vector of vectors
     for (int i=0; i< (int)inCal.objectPoints.size(); i++)
     {
-      
+		cout << "AHA" << endl;
+
         vector<Point3f> sharedObjectPoints;
         vector<Point2f> sharedImagePoints, sharedImagePoints2;   //shared image points for each inCal
 
@@ -633,6 +622,14 @@ void getSharedPoints(intrinsicCalibration &inCal, intrinsicCalibration &inCal2)
 	  inCal2.objectPoints.erase(inCal2.objectPoints.begin()+i);
 	  inCal.imagePoints.erase(inCal.imagePoints.begin()+i);
 	  inCal2.imagePoints.erase(inCal2.imagePoints.begin()+i);
+	  
+	  // temp
+	  if (inCal.objectPoints.size() <= 0){
+	    inCal.objectPoints[0].clear();
+	    inCal2.objectPoints[0].clear();
+	    break;
+	  }
+	  
 	  
 	  // decrement i because we removed one element
 	  //  from the beginning of the vector, inCal.objectPoints.
@@ -764,17 +761,33 @@ void setUpAruco( Settings s, intrinsicCalibration &inCal, intrinsicCalibration &
     inCal2.imagePoints =processedImagePoints2;
 
     
-    cout << "Number of objectPoints detected for image 0"
+    int detected0;
+    int detected1; 
+    if (processedObjectPoints1[0][0] == Point3f(-1,-1,0)
+	&& processedObjectPoints2[0][0] == Point3f(-1,-1,0))
+      {
+	detected0 = 0;
+	detected1 = 0;
+      }
+    else
+      {
+	detected0 = inCal.objectPoints[0].size();
+	detected1 = inCal2.objectPoints[0].size();
+      }
+    
+    cout << " # of objectPoints for image0"
 	 << " and the " << s.markersX[n] << "x" << s.markersY[n] << " board"
+	 << " with marker size " << s.markerLength[n]
 	 << " is " 
-	 << inCal.objectPoints[0].size() << endl;
-    cout << "Number of objectPoints detected for image 1"
+	 << detected0 << endl;
+    cout << " # of objectPoints for image1"
 	 << " and the " << s.markersX[n] << "x" << s.markersY[n] << " board"
+	 << " with marker size " << s.markerLength[n]
 	 << " is " 
-	 << inCal2.objectPoints[0].size() << endl;
+	 << detected1 << endl;
 
-    returnVector.push_back((int)inCal.objectPoints[0].size());
-    returnVector.push_back((int)inCal2.objectPoints[0].size());
+    returnVector.push_back(detected0);
+    returnVector.push_back(detected1);
     
   }
 }
@@ -808,6 +821,7 @@ void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBo
     InCal.allIds.push_back(currentBoard->ids);
     s.imageSize = img.size();
   }
+  
   else if(currentBoard->ids.size() == 0 && s.mode == Settings::STEREO) {
 
     vector < Point2f > temp;
@@ -822,6 +836,7 @@ void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBo
     InCal.allIds.push_back(currentBoard->ids);
     
   }
+  
 }
 
 
@@ -953,42 +968,15 @@ vector<int> detectionCheck( char* settingsFile, char* filename0, char* filename1
 	    for(int n = 0; n< s.numberOfBoards; n++){
 	      
 	      setUpAruco(s, inCalList[n][0], inCalList[n][1], boardsList[n], n);
-	   
-	      
-	      // inCal is the final structure used for the calibration.
-	      //  Thus, move all the processed objectPoints from the first viewpoint
-	      //  into inCal.
-	      // If the number of boards is one, then inCal will have as many
-	      //  objectPoints as in inCalList[n][0]
-	      inCal.objectPoints.insert(inCal.objectPoints.end(),
-					inCalList[n][0].objectPoints.begin(),
-					inCalList[n][0].objectPoints.end());
-	      inCal.imagePoints.insert(inCal.imagePoints.end(),
-				       inCalList[n][0].imagePoints.begin(),
-				       inCalList[n][0].imagePoints.end());
-	      
-	      if (s.mode == Settings::STEREO){
 
-		// inCal2 is the final structure used for stereo calibration.
-		//  Thus, move all the processed objectPoints from the second viewpoint
-		//  into inCal2.
-		// If the number of boards is one, then inCal2 will have as many
-		//  objectPoints as in inCalList[n][1]
-		inCal2.objectPoints.insert(inCal2.objectPoints.end(),
-					   inCalList[n][1].objectPoints.begin(),
-					   inCalList[n][1].objectPoints.end());
-		inCal2.imagePoints.insert(inCal2.imagePoints.end(),
-					  inCalList[n][1].imagePoints.begin(),
-					  inCalList[n][1].imagePoints.end());
-	      }
+	      getSharedPoints(inCalList[n][0],  inCalList[n][1], n);
 
-	      getSharedPoints(inCal, inCal2);
 	      cout << "Number of shared objectPoints for this board is " 
-		   << inCal.objectPoints[n].size() << endl;
-	      if (inCal.objectPoints[0].size() < 10)
+		   << inCalList[n][0].objectPoints[0].size() << endl;
+	      if (inCalList[n][0].objectPoints[0].size() < 10)
 		cout << "Not Good!" << endl;
 
-	      returnVector.push_back((int)inCal.objectPoints[n].size());
+	      returnVector.push_back((int)inCalList[n][0].objectPoints[0].size());
 	      
 	      
 	    }
