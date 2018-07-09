@@ -447,38 +447,6 @@ Ptr<ChessBoard> ChessBoard::create(int markersX, int markersY, float markerLengt
     return res;
 }
 
-void drawDetected(Mat &image, vector< vector< Point2f > > corners,  vector< int > ids) {
-  
-  // calculate colors
-  Scalar textColor, cornerColor, borderColor;
-  borderColor = Scalar(51, 153, 255);
-  cornerColor = Scalar(255, 0, 127);
-  textColor = Scalar(0, 0, 0);
-  
-  int nMarkers = (int)corners.size();
-  for(int i = 0; i < nMarkers; i++) {
-    vector< Point2f > currentMarker = corners[i];
-    CV_Assert(currentMarker.size() == 4);
-
-
-    // Draws a square on the current marker
-    vector<Point> pt;
-    for (int ao=0; ao< 4; ao++) {
-      pt.push_back(currentMarker[ao]);
-    } 
-    fillConvexPoly(image, pt, borderColor);
-
-    
-    // Draw the marker ID
-    if(ids.size() != 0) {
-      Point2f cent(0, 0);
-      for(int p = 0; p < 4; p++)
-	cent += currentMarker[p];
-      cent = cent / 4.;
-      putText(image,std::to_string(ids[i]), cent, FONT_HERSHEY_DUPLEX, 0.3, textColor, 1.9);
-    }
-    
-  }
 
   // Highlight the top right-hand corner of the current marker
   //  (within a second loop to avoid superposition of shapres)
@@ -969,7 +937,7 @@ vector<int> detectionCheck( char* settingsFile, char* filename0, char* filename1
 	      
 	      setUpAruco(s, inCalList[n][0], inCalList[n][1], boardsList[n], n);
 
-	      getSharedPoints(inCalList[n][0],  inCalList[n][1], n);
+	      getSharedPoints(inCalList[n][0],  inCalList[n][1]);
 
 	      cout << "Number of shared objectPoints for this board is " 
 		   << inCalList[n][0].objectPoints[0].size() << endl;
