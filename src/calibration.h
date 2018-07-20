@@ -18,18 +18,29 @@
 
 using namespace std;
 using namespace cv;
-//using namespace aruco;
+using namespace aruco;
 
 int calibrateWithSettings( const string inputSettingsFile );
 
 
+//global variables for AruCo calibration 
+vector< vector< Point2f > > allCornersConcatenated1;
+vector< int > allIdsConcatenated1;
+vector< int > markerCounterPerFrame1;
+vector< vector< Point2f > > allCornersConcatenated2; // and for stereo AruCo calibration
+vector< int > allIdsConcatenated2;
+vector< int > markerCounterPerFrame2;
+
 struct intrinsicCalibration {
-    Mat cameraMatrix, distCoeffs;   //intrinsic matrices
-    vector<Mat> rvecs, tvecs;       //extrinsic rotation and translation vectors
-    vector<vector<Point2f> > imagePoints;   //corner points on 2d image
-    vector<vector<Point3f> > objectPoints;  //corresponding 3d object points
-    vector<float> reprojErrs;   //vector of reprojection errors for each pixel
-    double totalAvgErr;     //average error across every pixel
+  Mat cameraMatrix, distCoeffs;   //intrinsic camera matrices
+  vector<Mat> rvecs, tvecs;       //extrinsic rotation and translation vectors for each image
+  vector<vector<Point2f> > imagePoints;   //corner points on 2d image
+  vector<vector<Point3f> > objectPoints;  //corresponding 3d object points
+  vector<float> reprojErrs;   //vector of reprojection errors for each pixel
+  double totalAvgErr = 0;     //average error across every pixel
+  vector< vector< vector< Point2f > > > allCorners;
+  vector< vector< int > > allIds;
+  
 };
 
 struct stereoCalibration {
@@ -38,13 +49,45 @@ struct stereoCalibration {
     Rect validRoi[2];       //Rectangle within the rectified image that contains all valid points
 };
 
+class ChessBoard : public aruco::GridBoard  {
+
+public:
+  void draw(Size outSize, OutputArray img, int marginSize = 0, int borderBits = 1);
+  
+  static Ptr<ChessBoard> create(int markersX, int markersY, float markerLength,
+                                float markerSeparation,
+                                const Ptr<aruco::Dictionary> &dictionary,
+                                int firstMarker = 0);
+
+  Ptr<aruco::Dictionary> localDictionary;
+  
+  std::vector< std::vector< Point3f >> obj_points_vector;
+  
+  std::vector< int > ids_vector;
+
+  vector< int > ids;
+
+  vector< vector< Point2f > > corners, rejected;
+
+
+private:
+  // number of markers in X and Y directions
+  int __markersX, __markersY;
+  
+  // marker side lenght (normally in meters)
+  float __markerLength;
+  
+  // separation between markers in the grid
+  float __markerSeparation;
+  
+};
 
 class Settings {
 public:
     Settings();
 
-    enum Pattern { CHESSBOARD, ARUCO_SINGLE, ARUCO_BOX, NOT_EXISTING };
-    enum Mode { INTRINSIC, STEREO, PREVIEW, INVALID };
+    enum Pattern { CHESSBOARD, ARUCO_SINGLE, NOT_EXISTING };
+    enum Mode { INTRINSIC, STEREO, INVALID };
 
     void write(FileStorage& fs) const;
     void read(const FileNode& node);
@@ -86,25 +129,22 @@ public:
     string rectifiedPath;      // Path at which to save rectified images (leave 0 to not save rectified)
 
     // Itrinsic calibration settings
-    string fixDistCoeffs;              // A sequence of five digits (0 or 1) that control which distortion coefficients will be fixed
+    string fixDistCoeffs;              // A sequence of five digits (0 or 1) that
+                                       //control which distortion coefficients will be fixed
     float aspectRatio;              // The aspect ratio. If it is inputted as 1, it will be fixed in calibration
     bool assumeZeroTangentDist;     // Assume zero tangential distortion
     bool fixPrincipalPoint;         // Fix the principal point at the center
     int flag;                       // Flag to modify calibration
 
     // UI settings
-    bool showUndistorted;           // Show undistorted images after intrinsic calibration
+    bool showUndistorted;         // Show undistorted images after intrinsic calibration
     bool showRectified;           // Show rectified images after stereo calibration
-    bool showArucoCoords;           // If false, IDs will be printed instead
+    bool wait;                    // Wait until a key is pressed to show the next detected image
 
     // Program variables
     int nImages;
     Size imageSize;
-    int nConfigs;
-
-    // Live preview settings
-    int cameraID;
-    VideoCapture capture;
+    int nBoards;
 
     bool goodInput;
 
