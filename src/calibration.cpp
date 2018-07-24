@@ -44,6 +44,7 @@ the use of this software, even if advised of the possibility of such damage.
 
 */
 
+
 #include <opencv2/core.hpp>
 #include <opencv2/core/utility.hpp>
 
@@ -68,12 +69,18 @@ the use of this software, even if advised of the possibility of such damage.
 #include <dirent.h>
 #include <string> 
 
+
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <functional>
+
 using namespace cv;
 using namespace aruco;
 using namespace std;
 
  //tmp for scaling images during rectification 
-int rf  = 1;
+int rf  = 2;
 
 //global variables for AruCo calibration 
 vector< vector< Point2f > > allCornersConcatenated1;
@@ -372,7 +379,7 @@ public:
 
         //If the image is too big, resize it. This makes it more visible and
         // prevents errors with ArUco detection.  
-        if (img.cols>1080) resize(img, img, Size(), 0.5, 0.5);
+        //if (img.cols>1080) resize(img, img, Size(), 0.5, 0.5);
         
         
         return img;
@@ -869,16 +876,16 @@ void chessboardDetect(Settings s, Mat &img, intrinsicCalibration &inCal)
 
 void getObjectAndImagePoints( vector< vector< Point2f > >  detectedCorners, vector< int > detectedIds, vector< Point3f > &objPoints, vector< Point2f > &imgPoints, Ptr<ChessBoard> &currentBoard) {
 
-
-    size_t nDetectedMarkers = detectedIds.size();
+  std::map< string , int> countMap;
+  size_t nDetectedMarkers = detectedIds.size();
 
    
-    objPoints.reserve(nDetectedMarkers);
-    imgPoints.reserve(nDetectedMarkers);
+  objPoints.reserve(nDetectedMarkers);
+  imgPoints.reserve(nDetectedMarkers);
 
-    // look for detected markers that belong to the board and get their information
-    for(unsigned int i = 0; i < nDetectedMarkers; i++) {
-        int currentId = detectedIds[i];
+  // look for detected markers that belong to the board and get their information
+  for(unsigned int i = 0; i < nDetectedMarkers; i++) {
+    int currentId = detectedIds[i];
         for(unsigned int j = 0; j < currentBoard->ids_vector.size(); j++) {
             if(currentId == currentBoard->ids_vector[j]) {
                 for(int p = 0; p < 4; p++) {
@@ -1014,8 +1021,8 @@ void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBo
   Ptr<aruco::DetectorParameters> detectorParams = aruco::DetectorParameters::create();
 
   // do corner refinement in markers
-  detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_SUBPIX;
-  //detectorParams-> doCornerRefinement = true; // do corner refinement in markers
+  //detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_SUBPIX;
+  detectorParams-> doCornerRefinement = true; // do corner refinement in markers
   detectorParams-> cornerRefinementWinSize = 4;
   detectorParams->  minMarkerPerimeterRate = 0.01;
   detectorParams->  maxMarkerPerimeterRate = 4 ;
@@ -1093,62 +1100,64 @@ static void undistortImages(Settings s, intrinsicCalibration &inCal)
 }
 
 
-void cropImage(Settings s, stereoCalibration &sterCal,
-	       Mat rectifiedImage, vector<vector<int>> roi,
-	       int view , int pair){
+void cropImage(stereoCalibration &sterCal, vector<Mat> rectifiedPair,
+	       vector<vector<int>> roi,   int pair){
 
   vector<Mat> croppedImages;
-  //croppedImage = rectifiedImage.clone();
-  //cout << roi[view][0]  << " and " << roi[view-1][0] <<  endl;
-
-  
-  int y = max(roi[0][1]-100, 0); //, max(roi[1][1]-100, 0) );
-
-  cout << y << endl;
-  for ( int k =0; k < pair; k++) {
-    Mat img = s.imageSetup(view*2+k);
-    imshow("out" , img);
-    
-    int x = max(roi[0][0] -100, 0);
-    int w = min( img.size().width - x , roi[0][2]+ 200);
-    int h = min( img.size().height - y , roi[0][3] +200);
-
-    Rect mask(x,y,w,h);
-    Mat croppedImage = img(mask);
-    
-    croppedImages.push_back(croppedImage);
-
-  }
-
-  //imshow("out" , croppedImages[0]);
+  vector<int> dxs;
   char imgSave[100];
   bool save =  true;
   
+		        
+  int y = min(max(roi[0][1]- 100, 0), max(roi[1][1]- 100, 0));
+  int y1 = max(min( (roi[0][1] + roi[0][3])+ 100 , rectifiedPair[0].size().height - roi[0][1]),
+	       min( (roi[1][1] + roi[1][3])+ 100,  rectifiedPair[1].size().height - roi[1][1]));
+  int x = min(max(roi[0][0] - 100, 0) , max(roi[1][0] - 100, 0));
+  int x1 = max(min( (roi[0][0] + roi[0][2])+ 100, rectifiedPair[0].size().width - roi[0][0]),
+	       min( (roi[1][0] + roi[1][2])+ 100,  rectifiedPair[1].size().width - roi[1][0]));
+  
+  int w = x1 - x;
+  int h = y1 - y;
+
+  int dy = y;
+
   /*
-
-  int x = max( roi[0]-100, 0);
-  int y = max( roi[1]-100, 0);
-  int w = min( rectifiedImage.size().width - x , roi[2]+200);
-  int h = min( rectifiedImage.size().height - y , roi[3] +200);
-
+  int w = max(min( roi[0][2] + (roi[0][0]-x)*2 , roi[0][2]+ 300),
+	      min( roi[1][2] + (roi[1][0]-x)*2 , roi[1][2]+ 300));
+  
+  int h = max(min(roi[0][3] + (roi[0][1]-y)*2  , roi[0][3] +300),
+	      min(roi[1][3] + (roi[1][1]-y)*2  , roi[1][3] +300));
   */
+
+  for ( int view =0; view < 2; view++) {
+    
+    
+    int x = max(roi[view][0] - 100, 0);
+
+    dxs.push_back(x); 
+    // int w = min( roi[view][2] + (roi[view][0]-x)*2 , roi[view][2]+ 300);
+    //int h = min(roi[view][3] + (roi[view][1]-y)*2  , roi[view][3] +300);
+    
+    // int w = min( rectifiedPair[view].size().width - x , roi[view][2]+ 200);
+    // int h = min( rectifiedPair[view].size().height - y , roi[view][3] +200);
+    
+    Rect mask(x,y,w,h);
+    Mat croppedImage = rectifiedPair[view](mask);
+    
+    croppedImages.push_back(croppedImage);
+
+    if (save)
+      {
+	sprintf(imgSave, "cropped-%d-%d.jpg", pair, view);
+	imwrite(imgSave, croppedImages[view]);  
+      }
+  }
+ 
   
   /*
   if (pair == 0)
     sterCal.P1.at<double>(0,2) = sterCal.P1.at<double>(0,2)  
   */
-
-  //Rect mask(x,y,w,h);
-  //Mat croppedImage = rectifiedImage(mask);
-
-  if (save)
-    {
-      sprintf(imgSave, "cropped-%d-%d.jpg", pair, view);
-      imwrite(imgSave, croppedImages[0]);  
-    }
-
-  // return croppedImage;
-
 	      
 }
 
@@ -1295,9 +1304,8 @@ void rectifyImages(Settings s, intrinsicCalibration &inCal,
                         sterCal.P2, s.imageSize * rf, CV_16SC2, rmap[1][0], rmap[1][1]);
 
     Mat canvas, rimg, cimg;
-    //vector<Mat> croppedImgs;
+    vector<Mat> vectorRimgs;
     vector<vector<int>> vectorROIs;
-    //vector<Mat> rimgs;
     double sf = 600. / MAX(s.imageSize.width, s.imageSize.height);
     int w = cvRound(s.imageSize.width * sf);
     int h = cvRound(s.imageSize.height * sf);
@@ -1321,8 +1329,7 @@ void rectifyImages(Settings s, intrinsicCalibration &inCal,
     {
         for( int k = 0; k < 2; k++ )
         {
-	  //Mat img = imread(s.imageList[i*2+k], 0), rimg, cimg;
-	  
+	  //Mat img = imread(s.imageList[i*2+k], 0), rimg, cimg;	  
 	  Mat img = s.imageSetup(i*2+k), rimg, cimg;
 	  //if (img.cols>1080) resize(img, img, Size(), 0.5, 0.5);
 	    
@@ -1333,8 +1340,8 @@ void rectifyImages(Settings s, intrinsicCalibration &inCal,
 	    {
 	      //vector<int> roi  = thresholdImage(sterCal, rimg, k, i);
 	      //vectorROIs.push_back(roi);
-	      //if (k==1) 
-	      //cropImage(s, sterCal, rimg, vectorROIs,  k, i);	  
+	      //vectorRimgs.push_back(rimg);
+	      
 	      view = "left";
 	      if (k == 1) view = "right";
 	      sprintf(imgSave, "%s%s_rectified_%d.jpg", s.rectifiedPath.c_str(), view, i);
@@ -1343,12 +1350,15 @@ void rectifyImages(Settings s, intrinsicCalibration &inCal,
 	    
 	  //cvtColor(rimg, cimg, COLOR_GRAY2BGR);
 	  Mat canvasPart = canvas(Rect(w*k, 0, w, h));
-	  resize(cimg, canvasPart, canvasPart.size(), 0, 0, CV_INTER_AREA);
+	  resize(rimg, canvasPart, canvasPart.size(), 0, 0, CV_INTER_AREA);
 
 	  Rect vroi(cvRound(sterCal.validRoi[k].x*sf), cvRound(sterCal.validRoi[k].y*sf),
                       cvRound(sterCal.validRoi[k].width*sf), cvRound(sterCal.validRoi[k].height*sf));
 	  rectangle(canvasPart, vroi, Scalar(0,0,255), 3, 8);
         }
+	
+	//cropImage(sterCal, vectorRimgs, vectorROIs, i);
+	
         for( int j = 0; j < canvas.rows; j += 16 )
             line(canvas, Point(0, j), Point(canvas.cols, j), Scalar(0, 255, 0), 1, 8);
     }
@@ -1421,7 +1431,7 @@ stereoCalibration runStereoCalibration(Settings s, intrinsicCalibration &inCal, 
                  inCal2.cameraMatrix, inCal2.distCoeffs,
                  s.imageSize, sterCal.R, sterCal.T, sterCal.R1, sterCal.R2,
                  sterCal.P1, sterCal.P2, sterCal.Q,
-                 CALIB_ZERO_DISPARITY, 1, s.imageSize * rf,
+                 CALIB_ZERO_DISPARITY, -1, s.imageSize * rf,
                  &sterCal.validRoi[0], &sterCal.validRoi[1]);
 
     rectifyImages(s, inCal, inCal2, sterCal);
