@@ -1021,8 +1021,8 @@ void  arucoDetect(Settings s, Mat &img, intrinsicCalibration &InCal, Ptr<ChessBo
   Ptr<aruco::DetectorParameters> detectorParams = aruco::DetectorParameters::create();
 
   // do corner refinement in markers
-  //detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_SUBPIX;
-  detectorParams-> doCornerRefinement = true; // do corner refinement in markers
+  detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_SUBPIX;
+  //detectorParams-> doCornerRefinement = true; // do corner refinement in markers
   detectorParams-> cornerRefinementWinSize = 4;
   detectorParams->  minMarkerPerimeterRate = 0.01;
   detectorParams->  maxMarkerPerimeterRate = 4 ;
