@@ -69,6 +69,11 @@ the use of this software, even if advised of the possibility of such damage.
 #include <dirent.h>
 #include <string> 
 
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <functional>
+
 using namespace cv;
 using namespace aruco;
 using namespace std;
@@ -515,9 +520,9 @@ void getSharedPoints_(intrinsicCalibration_ &inCal, intrinsicCalibration_ &inCal
     //for each objectPoints vector in overall objectPoints vector of vectors
     for (int i=0; i< (int)inCal.objectPoints.size(); i++)
     {
-
-        vector<Point3f> sharedObjectPoints;
-        vector<Point2f> sharedImagePoints, sharedImagePoints2; //shared image points for each inCal
+      std::map< string , int> countMap;
+      vector<Point3f> sharedObjectPoints;
+      vector<Point2f> sharedImagePoints, sharedImagePoints2; //shared image points for each inCal
 
         oPoints = &inCal.objectPoints.at(i);
         oPoints2 = &inCal2.objectPoints.at(i);
@@ -536,9 +541,10 @@ void getSharedPoints_(intrinsicCalibration_ &inCal, intrinsicCalibration_ &inCal
 		if (oPoints->at(j) == oPoints2->at(shared)) break;
 	      if (shared != (int)oPoints2->size())       //object point is shared
 		{
-		  temp << "(" << oPoints->at(j).x << "," << oPoints->at(j).y
+		  stringstream temp;
+		  temp << "(" << oPoints->at(j).x
+		       << "," << oPoints->at(j).y
 		       << "," << oPoints->at(j).z << ")";
-		  // cout << temp.str() << endl;
 		  auto result = countMap.insert(std::pair< string, int>(temp.str() , 1));
 		  if (result.second == false)
 		      result.first->second++;
@@ -565,9 +571,9 @@ void getSharedPoints_(intrinsicCalibration_ &inCal, intrinsicCalibration_ &inCal
 	      if (shared != (int)oPoints->size())       //object point is shared
 		{
 		  stringstream temp;
-		  temp << "(" << oPoints2->at(j).x << "," << oPoints2->at(j).y
+		  temp << "(" << oPoints2->at(j).x
+		       << "," << oPoints2->at(j).y
 		       << "," << oPoints2->at(j).z << ")";
-		  //cout << temp.str() << endl;
 		  auto result = countMap.insert(std::pair< string, int>(temp.str() , 1));
 		  if (result.second == false)
 		      result.first->second++;
@@ -615,37 +621,36 @@ void getSharedPoints_(intrinsicCalibration_ &inCal, intrinsicCalibration_ &inCal
 
 void getObjectAndImagePoints_( vector< vector< Point2f > >  detectedCorners, vector< int > detectedIds, vector< Point3f > &objPoints, vector< Point2f > &imgPoints, Ptr<ChessBoard_> &currentBoard) {
 
+  std::map< string , int> countMap;
+  size_t nDetectedMarkers = detectedIds.size();
+  
+  
+  objPoints.reserve(nDetectedMarkers);
+  imgPoints.reserve(nDetectedMarkers);
 
-    size_t nDetectedMarkers = detectedIds.size();
-
-   
-    objPoints.reserve(nDetectedMarkers);
-    imgPoints.reserve(nDetectedMarkers);
-
-    // look for detected markers that belong to the board and get their information
-    for(unsigned int i = 0; i < nDetectedMarkers; i++) {
-        int currentId = detectedIds[i];
-        for(unsigned int j = 0; j < currentBoard->ids_vector.size(); j++) {
-            if(currentId == currentBoard->ids_vector[j]) {
-                for(int p = 0; p < 4; p++) {
-		   stringstream temp;
-		   temp << "("
-			<< currentBoard->obj_points_vector[j][p].x << ","
-			<< currentBoard->obj_points_vector[j][p].y << ","
-			<< currentBoard->obj_points_vector[j][p].z << ")";
-		   // cout << temp.str() << endl;
-		   auto result = countMap.insert(std::pair< string , int>(temp.str() , 1));
-		   if (result.second == false)
-		     result.first-> second++;
-		   if (result.second !=1)
-		     continue;
-		   objPoints.push_back(currentBoard->obj_points_vector[j][p]);
-		   imgPoints.push_back(detectedCorners[i][p]);
+  // look for detected markers that belong to the board and get their information
+  for(unsigned int i = 0; i < nDetectedMarkers; i++) {
+    int currentId = detectedIds[i];
+    for(unsigned int j = 0; j < currentBoard->ids_vector.size(); j++) {
+      if(currentId == currentBoard->ids_vector[j]) {
+	for(int p = 0; p < 4; p++) {
+	  stringstream temp;
+	  temp << "("
+	       << currentBoard->obj_points_vector[j][p].x << ","
+	       << currentBoard->obj_points_vector[j][p].y << ","
+	       << currentBoard->obj_points_vector[j][p].z << ")";
+	  auto result = countMap.insert(std::pair< string , int>(temp.str() , 1));
+	  if (result.second == false)
+	    result.first-> second++;
+	  if (result.second !=1)
+	    continue;
+	  objPoints.push_back(currentBoard->obj_points_vector[j][p]);
+	  imgPoints.push_back(detectedCorners[i][p]);
                     
-                }
-            }
-        }
+	}
+      }
     }
+  }
 }
 
 
@@ -785,7 +790,8 @@ void  arucoDetect_(Settings_ s, Mat &img, intrinsicCalibration_ &InCal, Ptr<Ches
 
   Ptr<aruco::DetectorParameters> detectorParams = aruco::DetectorParameters::create();
 
-  detectorParams-> doCornerRefinement = true; // do corner refinement in markers
+  detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_SUBPIX;
+  //detectorParams-> doCornerRefinement = true; // do corner refinement in markers
   detectorParams-> cornerRefinementWinSize = 4;
   detectorParams->  minMarkerPerimeterRate = 0.01;
   detectorParams->  maxMarkerPerimeterRate = 4 ;
