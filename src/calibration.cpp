@@ -79,9 +79,6 @@ using namespace cv;
 using namespace aruco;
 using namespace std;
 
-//tmp for scaling images during rectification 
-//int rf  = 2;
-
 //global variables for AruCo calibration:
 // (after calibration, the the detected object points need
 //  to be available to the processing function, which
@@ -184,12 +181,14 @@ public:
 	   << "Calibrate_FixAspectRatio" <<  aspectRatio
 	   << "Calibrate_AssumeZeroTangentialDistortion" <<  assumeZeroTangentDist
 	   << "Calibrate_FixPrincipalPointAtTheCenter" <<  fixPrincipalPoint
-	   << "Alpha parameter" << alpha
-	   << "Resizing factor" << rf
+	   << "Alpha_parameter" << alpha
+	   << "Resizing_factor" << rf
+	   << "Cropping_After_Rectification" << crop
 	  
 	   << "Show_UndistortedImages" <<  showUndistorted
 	   << "Show_RectifiedImages" <<  showRectified
 	   << "Wait_NextDetectedImage" << wait
+
 	         
            << "}";
     }
@@ -226,8 +225,9 @@ public:
         node["Calibrate_FixAspectRatio"] >> aspectRatio;
         node["Calibrate_AssumeZeroTangentialDistortion"] >> assumeZeroTangentDist;
         node["Calibrate_FixPrincipalPointAtTheCenter"] >> fixPrincipalPoint;	
-		node["Alpha parameter"] >> alpha;
-		node["Resizing factor"] >> rf;
+	node["Alpha_parameter"] >> alpha;
+	node["Resizing_factor"] >> rf;
+	node["Cropping_After_Rectification"] >> crop;
 
         node["Show_UndistortedImages"] >> showUndistorted;
         node["Show_RectifiedImages"] >> showRectified;
@@ -558,6 +558,7 @@ public:
 
   int alpha;
   int rf;
+  int crop;
   
 //--------------------------------UI settings---------------------------------//
   bool showUndistorted;   // Show undistorted images after intrinsic calibration
@@ -1176,7 +1177,7 @@ vector<int> thresholdImage(stereoCalibration sterCal, Mat rectifiedImage, int vi
   //  to the largest and second largest connected component in the image
   vector<int> ccVector;
   ccVector.push_back(1); // largest
-  ccVector.push_back(1); // second largest
+  ccVector.push_back(2); // second largest
 
     
   /// Find connected componets
@@ -1195,16 +1196,21 @@ vector<int> thresholdImage(stereoCalibration sterCal, Mat rectifiedImage, int vi
 	int h = stats.at<int>(Point(3, l));
 	int a = stats.at<int>(Point(4, l));
 
+	//cout << l << endl;
+	
 	output << "for label " << l << " and view " << j << '\n'  
  	       << " x=" << x << " y=" << y
 	       << " w=" << w << " h=" << h
 	       << " area=" << a << endl << endl;
 	
+
 	colors[l] = cv::Vec3b(0,0,0); // background pixels remain black.
 
 	//  if much bigger than the region of valid pixels, skip the current connected compoent
-	if (w > sterCal.validRoi[view].width*2 || h >  sterCal.validRoi[view].width*2)
+	if (w > sterCal.validRoi[view].width*2 || h >  sterCal.validRoi[view].width*2){
+	  cout << '\n' << "TOO BIG. " << "Label: " << l << endl << endl;
 	  continue;
+	}
 	
 	
 	if (a > valPixelsArea && a >= stats.at<int>(Point(4, ccVector[j])))
@@ -1218,12 +1224,15 @@ vector<int> thresholdImage(stereoCalibration sterCal, Mat rectifiedImage, int vi
 
   int lcc = ccVector[0];
   int slcc = ccVector[1];
-
+  cout << endl;
+  cout << lcc << endl;
+  cout << stats.at<int>(Point(4, lcc)) << endl;
+  cout << slcc << endl << endl;
   
   //think if there is a better way than this ...
-  if (stats.at<int>(Point(3, lcc)) > stats.at<int>(Point(3, slcc)) &&
+  if (stats.at<int>(Point(3, lcc)) > sterCal.validRoi[view].height &&   //> stats.at<int>(Point(3, slcc)) &&
       stats.at<int>(Point(2, lcc)) < sterCal.validRoi[view].width) {
-    
+    cout << '\n' << " This Condition is true " << endl << endl;
     // stats.at<int>(Point(2, lcc)) <  stats.at<int>(Point(2, slcc)))
     ccVector[0]  = slcc;
     ccVector[1] = lcc;
@@ -1274,7 +1283,6 @@ void rectifyImages(Settings s, intrinsicCalibration &inCal,
 
     vector<Mat> vectorRimgs;
     vector<vector<int>> vectorROIs;
-    bool crop = false;
     vector<int> dfs;
 
     // buffer for image filename
@@ -1305,7 +1313,7 @@ void rectifyImages(Settings s, intrinsicCalibration &inCal,
 	    // If a valid path for rectified images has been provided, save them to this path
 	    if (save)
 	      {
-		if (crop){
+		if (s.crop == 1){
 		  vector<int> roi  = thresholdImage(sterCal, rimg, k, i);
 		  vectorROIs.push_back(roi);
 		  vectorRimgs.push_back(rimg);
@@ -1318,12 +1326,12 @@ void rectifyImages(Settings s, intrinsicCalibration &inCal,
 	      }
 	  }
 
-	if (crop)
+	if (s.crop == 1)
 	  dfs =cropImage(vectorRimgs, vectorROIs, i);
 	
       }
 
-    if (crop){
+    if (s.crop == 1){
     	  sterCal.P1.at<double>(0,2) = sterCal.P1.at<double>(0,2) - dfs[0];
 	  sterCal.P2.at<double>(0,2) = sterCal.P2.at<double>(0,2) - dfs[1];
 	  sterCal.P1.at<double>(1,2) = sterCal.P1.at<double>(1,2) - dfs[2];
@@ -1527,19 +1535,17 @@ int calibrateWithSettings( const string inputSettingsFile )
 
       // variable used to facilitate the alternation
       //  between intrinsic calibration structs for stereo mode.
-      int value = 0;
+      int currentInCalValue = 0;
       
       for(int i = 0;;i++)
 	{
 	  // Switches between intrinsic calibration structs for stereo mode
-	  if (i%2 == 0) {
-	    currentInCal = &inCalList[0][0];
-	    value = 0;
-	  } else if (s.mode == Settings::STEREO){	    
-	    currentInCal = &inCalList[ s.numberOfBoards-1][1];
-	    value = 1;
-	  }
+	  if (i%2 == 0) 
+	    currentInCalValue = 0;
+	  else if (s.mode == Settings::STEREO)	   
+	    currentInCalValue = 1;
 	  
+	 
 	  // Set up the image
 	  Mat img = s.imageSetup(i);
 	  
@@ -1588,19 +1594,16 @@ int calibrateWithSettings( const string inputSettingsFile )
 	  Mat imgCopy;
 	    
 	  for(int n = 0; n< s.numberOfBoards; n++){
+	    currentInCal = &inCalList[n][currentInCalValue];
 	    arucoDetect(s, img, *currentInCal, boardsList[n]);
-	    currentInCal = &inCalList[(i+1)% s.numberOfBoards][value];
-
-	    
 	    if(save) {
 	      sprintf(imgSave, "%sdetected_%d.jpg", s.detectedPath.c_str(), i);
 	      imwrite(imgSave, imgCopy);
 	    }
 	  }
-  
-	}
+	}  
     }
-    
+
 /*-----------Calibration using Standard Chessboard--------------*/ 
     else if(s.calibrationPattern == Settings::CHESSBOARD){
       

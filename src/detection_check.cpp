@@ -933,19 +933,16 @@ vector<int> detectionCheck( char* settingsFile, char* filename0, char* filename1
 
       // variable used to facilitate the alternation
       //  between intrinsic calibration structs for stereo mode.
-      int value;
+      int currentInCalvalue = 0;
 
      
       for(int i = 0;;i++){
       	 
 	  // Switches between intrinsic calibration structs for stereo mode
-	  if (i%2 == 0) {
-	    currentInCal = &inCalList[0][0];
-	    value = 0;
-	  } else if (s.mode == Settings_::STEREO){	    
-	    currentInCal = &inCalList[ s.numberOfBoards-1][1];
-	    value = 1;
-	  }
+	  if (i%2 == 0) 
+	    currentInCalvalue = 0;
+	  else if (s.mode == Settings::STEREO)
+	    currentInCalvalue = 1;
 
 	  Mat currentImg;
 	  if (i == 0)
@@ -966,13 +963,11 @@ vector<int> detectionCheck( char* settingsFile, char* filename0, char* filename1
 	      cout << "Number of shared objectPoints for this board is " 
 		   << inCalList[n][0].objectPoints[0].size() << endl;
 	      if (inCalList[n][0].objectPoints[0].size() < 10)
-		cout << "Not Good!" << endl;
+	       cout << "Not Good!" << endl;
 
-	      returnVector.push_back((int)inCalList[n][0].objectPoints[0].size());
-	      
-	      
-	    }
-	    
+	      returnVector.push_back((int)inCalList[n][0].objectPoints[0].size());	      
+	    }	    
+
 	    break;
 	    
 	  }
@@ -981,16 +976,16 @@ vector<int> detectionCheck( char* settingsFile, char* filename0, char* filename1
 	  Mat imgCopy;
 	    
 	  for(int n = 0; n< s.numberOfBoards; n++){
+	    currentInCal = &inCalList[n][currentInCalvalue];  
 	    arucoDetect_(s, currentImg, *currentInCal, boardsList[n]);
-	    currentInCal = &inCalList[(i+1)% s.numberOfBoards][value];    
+	  
 	    if(save) {
 	      sprintf(imgSave, "%sdetected_%d.jpg", s.detectedPath.c_str(), i);
 	      imwrite(imgSave, imgCopy);
 	    }
 	  }
-	}
+      }
     }
-
     return returnVector;
 }
 
