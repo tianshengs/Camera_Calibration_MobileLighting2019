@@ -78,16 +78,11 @@ using namespace cv;
 using namespace aruco;
 using namespace std;
 
-
+// Vector containing,
+//  - number of detected obj points for each view and each board
+//  - number of shared points between views
 vector<  int  > returnVector;
 
-//global variables for AruCo calibration 
-vector< vector< Point2f > > allCornersConcatenated1_;
-vector< int > allIdsConcatenated1_;
-vector< int > markerCounterPerFrame1_;
-vector< vector< Point2f > > allCornersConcatenated2_; // and for stereo AruCo calibration
-vector< int > allIdsConcatenated2_;
-vector< int > markerCounterPerFrame2_;
 
 //struct to store parameters for intrinsic calibration
 struct intrinsicCalibration_ {
@@ -109,6 +104,14 @@ struct stereoCalibration_ {
                             //(rectification transformations, projection matrices, disparity-to-depth mapping matrix)
     Rect validRoi[2];       //Rectangle within the rectified image that contains all valid points
 };
+
+//global variables for AruCo calibration 
+vector< vector< Point2f > > allCornersConcatenated1_;
+vector< int > allIdsConcatenated1_;
+vector< int > markerCounterPerFrame1_;
+vector< vector< Point2f > > allCornersConcatenated2_; // and for stereo AruCo calibration
+vector< int > allIdsConcatenated2_;
+vector< int > markerCounterPerFrame2_;
 
 
 class ChessBoard_ : public aruco::GridBoard  {
@@ -283,26 +286,6 @@ public:
     
     return img;
   }
-  
-    /*
-    // Reads the image list from a file
-    bool readImageList( const string& filename )
-    {
-        imageList.clear();
-        FileStorage fs(filename, FileStorage::READ);
-        if( !fs.isOpened() )
-            return false;
-        FileNode n = fs.getFirstTopLevelNode();
-        if( n.type() != FileNode::SEQ )
-            return false;
-        FileNodeIterator it = n.begin(), it_end = n.end();
-        for( ; it != it_end; ++it )
-            imageList.push_back((string)*it);
-        return true;
-    }
-    */
-    
-
 
 public:
 //--------------------------Calibration configuration-------------------------//
@@ -610,10 +593,9 @@ void getSharedPoints_(intrinsicCalibration_ &inCal, intrinsicCalibration_ &inCal
 	    inCal2.objectPoints[0].clear();
 	    break;
 	  }
-	  
-	  
+	  	  
 	  // decrement i because we removed one element
-	  //  from the beginning of the vector, inCal.objectPoints.
+	  //  from the beginning of inCal.objectPoints.
 	  i--; 
 	}
     }
@@ -830,12 +812,6 @@ void  arucoDetect_(Settings_ s, Mat &img, intrinsicCalibration_ &InCal, Ptr<Ches
   }
   
 }
-
-
-
-
-
-
 
 
 //-----------------------------------------------------------------------------
