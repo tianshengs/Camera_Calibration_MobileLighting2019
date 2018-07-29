@@ -917,7 +917,7 @@ vector<int> detectionCheck( char* settingsFile, char* filename0, char* filename1
 	  // Switches between intrinsic calibration structs for stereo mode
 	  if (i%2 == 0) 
 	    currentInCalvalue = 0;
-	  else if (s.mode == Settings::STEREO)
+	  else if (s.mode == Settings_::STEREO)
 	    currentInCalvalue = 1;
 
 	  Mat currentImg;
