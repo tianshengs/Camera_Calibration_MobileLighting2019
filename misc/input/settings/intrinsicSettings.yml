@@ -29,26 +29,25 @@ Settings:
   Num_of_Boards: 1
 
   #Filename for image list
-  ImageList_Filename: "intrinsics07-27.yml" #"intrinsicsList07-23.yml" #"/home/tmonaco/SummerProject/summer2018/opencvdemo/imageLists/intrinsic07-06-18.yml"  #"/home/tmonaco/SummerProject/summer2018/opencvdemo/imageListINT.yml" # "./imageChessboardTEST.yml"
-  
+  ImageList_Filename: "intrinsicsList.yml"
   #Intrinsic input filename. These intrinsics can be used as an initial estimate
   #for intrinsic calibration, as fixed intrinsics for stereo calibration, or to
   #preview undistortion in preview mode
   #Leave at "0" to calculate new intrinsics
-  IntrinsicInput_Filename: "0" #"/home/tmonaco/SummerProject/summer2018/opencvdemo/intrinsicMatrices/07-09-2018/intrinsics07-06.yml"
+  IntrinsicInput_Filename: "0"
 
   #File to write results of inrinsic calibration
-  IntrinsicOutput_Filename: "intri.yml"
+  IntrinsicOutput_Filename: "intrinsics.yml"
   #File to write extrinsics of stereo calibration
-  ExtrinsicOutput_Filename: "0" #"TESTSTEREO07-09.yml"
+  ExtrinsicOutput_Filename: "0"
 
   #LEAVE THESE SETTINGS AT "0" TO NOT SAVE IMAGES
   #Path at which to save undistorted images
-  UndistortedImages_Path: "0" #"./test/"
+  UndistortedImages_Path: "0"
   #Path at which to save rectified images
   RectifiedImages_Path: "0"
   #Path at which to save images with detected patterns drawn
-  DetectedImages_Path:"0" # "./test/"
+  DetectedImages_Path:"0"
 
   #A string of five digits (0 or 1) that controls which distortion coefficients
   #among K1-K5 will be fixed (1 = fixed)
