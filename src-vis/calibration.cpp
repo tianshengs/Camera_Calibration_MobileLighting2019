@@ -1,12 +1,14 @@
-/*
-Tommaso Monaco 2018
+/******************************************************************************
+Calibration With Visual Feedback. 
+
+Tommaso Monaco 2018 
 Middlebury College undergraduate summer research with Daniel Scharstein
 
 This program is adapted from the OpenCV3's extra modules (AruCo), and Kyle Meredith's 2017 work (Middlebury College).
 This program inherits some aspects from calibrate_camera.cpp, an example calibration programs provided by opencv. 
 
-The program has three modes: intrinsic calibration, stereo calibration, and live
-feed preview. It supports three patterns: chessboard, and AruCo single. 
+The program has two modes: intrinsic calibration, stereo calibration.
+It supports two patterns: chessboard, and AruCo single. 
 
 Read the README for more information and guidance.
 
@@ -42,16 +44,13 @@ and on any theory of liability, whether in contract, strict liability,
 or tort (including negligence or otherwise) arising in any way out of
 the use of this software, even if advised of the possibility of such damage.
 
-*/
+*******************************************************************************/
 
 
 #include <opencv2/core.hpp>
 #include <opencv2/core/utility.hpp>
 
 #include <opencv2/imgcodecs.hpp>
-#include <opencv2/videoio.hpp>
-
-
 #include <opencv2/highgui.hpp>
 #include <opencv2/calib3d.hpp>
 #include <opencv2/aruco.hpp>
@@ -78,6 +77,7 @@ using namespace cv;
 using namespace aruco;
 using namespace std;
 
+
 //struct to store parameters for intrinsic calibration
 struct intrinsicCalibration {
   Mat cameraMatrix, distCoeffs;   //intrinsic camera matrices
@@ -90,10 +90,11 @@ struct intrinsicCalibration {
 
 //struct to store parameters for stereo calibration
 struct stereoCalibration {
-    Mat R, T, E, F;         //Extrinsic matrices (rotation, translation, essential, fundamental)
-    Mat R1, R2, P1, P2, Q;  //Rectification parameters
-                            //(rectification transformations, projection matrices, disparity-to-depth mapping matrix)
-    Rect validRoi[2];       //Rectangle within the rectified image that contains all valid points
+  Mat R, T, E, F;         //Extrinsic matrices (rotation, translation, essential, fundamental)
+  Mat R1, R2, P1, P2, Q;  //Rectification parameters
+                          //(rectification transformations, projection matrices, disparity-to-depth mapping matrix)
+  Rect validRoi[2];       //Rectangle within the rectified image that contains all valid points
+  vector<vector<int>> masks; //if 'crop' is true, store masks values to crop rectified images.
 };
 
 
@@ -483,7 +484,7 @@ public:
     }
 
     // Saves the stereo parameters of the sterCal struct to extrinsicOutput
-    void saveExtrinsics(stereoCalibration &sterCal)
+  void saveExtrinsics(stereoCalibration &sterCal)
     {
         if (extrinsicOutput == "0") return;
         FileStorage fs( extrinsicOutput, FileStorage::WRITE );
@@ -496,6 +497,9 @@ public:
         fs << "Calibration_Time" << buf;
 
         fs << "Calibration_Pattern" << patternInput;
+	
+	fs << "Image_Width" << imageSize.width;
+        fs << "Image_Height" << imageSize.height;
 
         fs << "Stereo_Parameters";
         fs << "{" << "Rotation_Matrix"     << sterCal.R
@@ -511,8 +515,59 @@ public:
                   << "Projection_Matrix_2"                  << sterCal.P2
                   << "Disparity-to-depth_Mapping_Matrix"    << sterCal.Q
            << "}";
+	
+	fs.release();
     }
 
+  void saveExtrinsicsWithMasks(stereoCalibration &sterCal) {
+    if (extrinsicOutput == "0") return;
+
+    std::string str = "_withMasks";
+    FileStorage fs( extrinsicOutput.insert( extrinsicOutput.length()-4, str), FileStorage::WRITE );
+
+    time_t tm;
+    time( &tm );
+    struct tm *t2 = localtime( &tm );
+    char buf[1024];
+    strftime( buf, sizeof(buf)-1, "%c", t2 );
+    fs << "Calibration_Time" << buf;
+
+    fs << "Calibration_Pattern" << patternInput;
+	
+    fs << "Image_Width" << imageSize.width;
+    fs << "Image_Height" << imageSize.height;
+
+    fs << "Stereo_Parameters";
+    fs << "{" << "Rotation_Matrix"     << sterCal.R
+       << "Translation_Vector"  << sterCal.T
+       << "Essential_Matrix"    << sterCal.E
+       << "Fundamental_Matrix"  << sterCal.F
+       << "}";
+
+    fs << "Rectification_Parameters";
+    fs << "{" << "Rectification_Transformation_1"       << sterCal.R1
+       << "Rectification_Transformation_2"       << sterCal.R2
+       << "Projection_Matrix_1"                  << sterCal.P1
+       << "Projection_Matrix_2"                  << sterCal.P2
+       << "Disparity-to-depth_Mapping_Matrix"    << sterCal.Q
+       << "}";
+
+
+    fs << "Masks";
+    fs << "{" << "View_1" <<  "{";
+    fs << "x"  << sterCal.masks[0][0];
+    fs << "y"  << sterCal.masks[0][1];
+    fs << "w"  << sterCal.masks[0][2];
+    fs << "h"  << sterCal.masks[0][3] << "}";	
+    fs << "View_2" <<  "{";
+    fs << "x"  << sterCal.masks[1][0];
+    fs << "y"  << sterCal.masks[1][1];
+    fs << "w"  << sterCal.masks[1][2];
+    fs << "h"  << sterCal.masks[1][3] << "}" << "}";
+	
+    fs.release();
+  }
+  
 public:
 
   bool goodInput;         //Tracks input validity
@@ -581,21 +636,20 @@ public:
   // LEAVE THIS VALUE AT "0" TO NOT CROP RECTIFIED IMAGES
   int crop;  // Crops the final rectified images
   
-
-//--------------------------------UI settings---------------------------------//
-    bool showUndistorted;   // Show undistorted images after intrinsic calibration
-    bool showRectified;     // Show rectified images after stereo calibration
-    bool wait;              // Wait until a key is pressed to show the next detected image
-
+  //--------------------------------UI settings---------------------------------//
+  bool showUndistorted;   // Show undistorted images after intrinsic calibration
+  bool showRectified;     // Show rectified images after stereo calibration
+  bool wait;              // Wait until a key is pressed to show the next detected image
+  
 //-----------------------------Program variables------------------------------//
-    int nImages;        // Number of images in the image list
-    Size imageSize;     // Size of each image
-    int nBoards;       // Number of marker maps read from config list
-
+  int nImages;        // Number of images in the image list
+  Size imageSize;     // Size of each image
+  int nBoards;       // Number of marker maps read from config list
+  
 private:
-    // Input variables only needed to set up settings
-    string modeInput;
-    string patternInput;
+  // Input variables only needed to set up settings
+  string modeInput;
+  string patternInput;
 };
 
 static void read(const FileNode& node, Settings& x, const Settings& default_value = Settings())
@@ -1172,13 +1226,13 @@ static void undistortImages(Settings s, intrinsicCalibration &inCal)
     destroyWindow("Undistorted");
 }
 
-
-vector<int> cropImage( vector<Mat> rectifiedPair,  vector<vector<int>> roi,   int pair){
+// computes the masks for cropping img pairs down to their region of interest after rectification  
+vector<vector<int>> computeMasks( vector<Mat> rectifiedPair,  vector<vector<int>> roi,   int pair){
 
   vector<Mat> croppedImages;
-  vector<int> dfs;
+  vector<vector<int>>  regionsOfInterest;
   char imgSave[100];
-  bool save =  false;
+  bool save =  true;
   
 		        
   int y = min(max(roi[0][1]- 100, 0), max(roi[1][1]- 100, 0)); // new y-coordinate for new cropped image pair
@@ -1200,28 +1254,23 @@ vector<int> cropImage( vector<Mat> rectifiedPair,  vector<vector<int>> roi,   in
     
     
     int x = max(roi[view][0] - 100, 0); // new x-cordinate for each of the new cropped images
-
-    dfs.push_back(x); 
     
     Rect mask(x,y,w,h);
     Mat croppedImage = rectifiedPair[view](mask);
-    
     croppedImages.push_back(croppedImage);
 
+    vector<int> roi = {x, y, w, h};
+    regionsOfInterest.push_back(roi);
+   
     if (save)
       {
 	sprintf(imgSave, "cropped-%d-%d.jpg", pair, view);
 	imwrite(imgSave, croppedImages[view]);  
       }
+    
   }
- 
-  dfs.push_back(y); // return vector (dfs) contains:
-                    //  - dx after cropping of first image in image pair
-                    //  - dx after cropping of second image in image pair
-                    //  - dy after cropping for both images in image pair
   
-  return dfs;
-  
+  return regionsOfInterest;
 }
 
 // Threhold image after rectification to obtain region of interest - i.e. ignore black background and noise.
@@ -1324,7 +1373,7 @@ vector<int> thresholdImage(stereoCalibration sterCal, Mat rectifiedImage, int vi
   
   if (save)
     {
-      sprintf(imgSave, "masked-%d-%d.jpg", pair, view);
+      sprintf(imgSave, "thresholded-%d-%d.jpg", pair, view);
       imwrite(imgSave, out_color);  
     }
   
@@ -1351,15 +1400,12 @@ void rectifyImages(Settings s, intrinsicCalibration &inCal,
     int w = cvRound(s.imageSize.width * sf);
     int h = cvRound(s.imageSize.height * sf);
     canvas.create(h, w*2, CV_8UC3);
+
     
     // buffer for image filename
     char imgSave[1000];
     const char *view;
     
-    vector<int> dfs;   // if 'crop' is activated,
-                       // contains how much image was cropped
-                       // horizontally and vertically
-
     bool save = false;
     if(s.rectifiedPath != "0")
     {
@@ -1372,8 +1418,8 @@ void rectifyImages(Settings s, intrinsicCalibration &inCal,
     namedWindow("Rectified", CV_WINDOW_AUTOSIZE);
     for( int i = 0; i < s.nImages/2 ; i++ ) {
 
-      vector<Mat> vectorRimgs;
-      vector<vector<int>> vectorROIs;
+      vector<Mat> vectorRimgs;        // pair of rectified images. 
+      vector<vector<int>> vectorROIs; // regions of interest of a pair rectified images
       
       for( int k = 0; k < 2; k++ ) {
 	  
@@ -1384,7 +1430,7 @@ void rectifyImages(Settings s, intrinsicCalibration &inCal,
 	  //  save them to this path
             if (save)
             {
-	      if (s.crop == 1){
+	      if (s.crop == 1) {
 		vector<int> roi  = thresholdImage(sterCal, rimg, k, i);
 		vectorROIs.push_back(roi);
 		vectorRimgs.push_back(rimg);
@@ -1406,30 +1452,26 @@ void rectifyImages(Settings s, intrinsicCalibration &inCal,
 		      cvRound(sterCal.validRoi[k].height * sf * 1/s.rf)); 
             rectangle(canvasPart, vroi, Scalar(0,0,255), 3, 8);
 	    
-        }
+      }
 
       for( int j = 0; j < canvas.rows; j += 16 )
-	  line(canvas, Point(0, j), Point(canvas.cols, j), Scalar(0, 255, 0), 1, 8);
-
+	line(canvas, Point(0, j), Point(canvas.cols, j), Scalar(0, 255, 0), 1, 8);
+      
       if (s.showRectified) {
 	imshow("Rectified", canvas);
 	char c = (char)waitKey(10000);
 	if( c == 27 || c == 'q' || c == 'Q' )
 	  break;
       }
+
       
-      if (s.crop == 1) // if 'crop', then crop img pair
-	dfs =cropImage(vectorRimgs, vectorROIs, i);
-      
+      if (s.crop == 1) // if 'crop', then compute masks for img pair
+	sterCal.masks = computeMasks(vectorRimgs, vectorROIs, i); 
     }
 
-    if (s.crop == 1){// if 'crop', then update projection matrices 
-      
-      sterCal.P1.at<double>(0,2) = sterCal.P1.at<double>(0,2) - dfs[0];
-      sterCal.P2.at<double>(0,2) = sterCal.P2.at<double>(0,2) - dfs[1];
-      sterCal.P1.at<double>(1,2) = sterCal.P1.at<double>(1,2) - dfs[2];
-      sterCal.P2.at<double>(1,2) = sterCal.P2.at<double>(1,2) - dfs[2];
-    }
+    if (s.crop == 1) // if 'crop', then save extrinsics with information on how to crop rectified img pairs.
+      s.saveExtrinsicsWithMasks(sterCal);
+    
     
     destroyWindow("Rectified");
 }
@@ -1539,7 +1581,6 @@ void runCalibrationAndSave(Settings s, intrinsicCalibration &inCal, intrinsicCal
 	
         stereoCalibration sterCal = runStereoCalibration(s, inCal, inCal2);
         s.saveExtrinsics(sterCal);
-
 	
     } else {                        // intrinsic calibration
       ok = runIntrinsicCalibration(s, inCal);
