@@ -50,7 +50,7 @@ Each folder contains a folder-specific *Makefile*. Then, it is easy to compile a
 
 The calibration program is run from settings files, which are YAML or XML (this functionality is
 adapted from the [2017 MobileLighting Research Project](https://github.com/kylebmeredith/Camera-Calibration).
-The [settings directory](misc\input\settings\) includes two example settings files, which detailed documentation for each entry.
+The [settings directory](misc/input/settings/) includes two example settings files, which detailed documentation for each entry.
 When the settings file and the main program are in the same folder, here is a sample program execution command: `./calibrateWithSettings ./intrinsicSettings.yml`
 
 The calibration program can also write a serialization for settings, using the settings class function write().
@@ -60,8 +60,8 @@ To use this functionality, you must uncomment the other write() function outside
 Two modes are supported: **INTRINSIC**, **STEREO**.  
 Two calibration patterns are supported: **CHESSBOARD**, **ARUCO_SINGLE**, where CHESSBOARD represents a traditional black-and-white chessboard.
 
-All modes require a YAML/XML [image list](misc\input\imageLists) with paths to the input
-[images](misc\input\images), specified by the setting: **imageList_Filename**.
+All modes require a YAML/XML [image list](misc/input/imageList) with paths to the input
+[images](misc/input/images), specified by the setting: **imageList_Filename**.
 
 ### ArUco Calibration Patterns
 ArUco patterns are barcode patterns, and they are comprised of markers with unique IDs based on a modified Hamming code. 
