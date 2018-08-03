@@ -1,4 +1,4 @@
-BIN = imdiff image_creator create_new_chessboard detect_markers
+BIN = imdiff imageList_creator create_new_chessboard
 
 DBG= -g
 CC = g++
@@ -10,5 +10,4 @@ LDLIBS = -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_calib3d \
 
 all: $(BIN)
 
-clean:
-	rm -f $(BIN) *.o core*
+clean: rm -f $(BIN) *.o core*
