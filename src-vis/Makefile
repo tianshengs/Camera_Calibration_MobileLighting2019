@@ -1,8 +1,7 @@
 SRC =  calibration.cpp  calibrateWithSettings.cpp 
 
 BIN = calibrateWithSettings   \
-      imdiff create_chessboard_obj imageList_creator \
-      create_new_chessboard detection_check det_check
+      detection_check det_check
 
 DBG= -g
 CC = g++
@@ -19,5 +18,4 @@ all: $(BIN)
 calibrateWithSettings: $(OBJ)
 	$(CC) -o $@  $(OBJ) $(LDLIBS)
 
-clean:
-	rm -f $(BIN) *.o core*
+clean: rm -f $(BIN) *.o core*
