@@ -1,8 +1,6 @@
 SRC =  calibration.cpp  calibrateWithSettings.cpp 
 
-BIN = calibrateWithSettings   \
-      imdiff create_chessboard_obj imageList_creator \
-      create_new_chessboard detection_check det_check
+BIN = calibrateWithSettings #detection_check
 
 DBG= -g
 CC = g++
