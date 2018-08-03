@@ -1,0 +1,87 @@
+%YAML:1.0
+Settings:
+  #Program modes:
+  #   INTRINSIC  — calculates intrinsics parameters and  undistorts images
+  #   STEREO     — calculates extrinsic stereo paramaters and rectifies images
+  Mode: STEREO
+  #Three supported calibration patterns: CHESSBOARD, ARUCO_SINGLE
+  Calibration_Pattern: ARUCO_SINGLE
+
+  #Number of inner corners per chessboard row and column
+  ChessboardSize_Width: 17
+  ChessboardSize_Height: 12
+  #The size of a square in some user defined metric system (pixel, millimeter, e - tc.)
+  SquareSize: 25.4
+
+#If AruCo, specify the number of markers, the markers' length,
+# the markers' dictionary, the id (integer)
+# of the first marker, and the number of boards.
+#Give data as an array
+# e.g. numMarkersY: [8, 7] if two boards are used
+  Num_MarkersX: [8, 8, 12]
+  Num_MarkersY: [7, 8, 9]
+  #The length of the markers in pixels   
+  Marker_Length: [108, 72, 72]
+  #AruCo dictionary must be the same for all boards in the scene
+  Dictionary: 11
+  #First marker must be between 0 and the dictionary size.
+  First_Marker: [516, 113, 320]
+  Num_of_Boards: 3
+
+  #Filename for image list
+  ImageList_Filename: "./extrinsicsList07-12.yml"
+  #Intrinsic input filename. These intrinsics can be used as an initial estimate
+  #for intrinsic calibration, as fixed intrinsics for stereo calibration, or to
+  #preview undistortion in preview mode
+  #Leave at "0" to calculate new intrinsics
+  IntrinsicInput_Filename: "./instrinsic.yml"
+
+  #File to write results of inrinsic calibration
+  IntrinsicOutput_Filename: "0" #"testinstrinsic.yml"
+  #File to write extrinsics of stereo calibration
+  ExtrinsicOutput_Filename: "TESTSTEREO07-09.yml"
+
+  #LEAVE THESE SETTINGS AT "0" TO NOT SAVE IMAGES
+  #Path at which to save undistorted images
+  UndistortedImages_Path: "0"
+  #Path at which to save rectified images
+  RectifiedImages_Path: "./test/"
+  #Path at which to save images with detected patterns drawn
+  DetectedImages_Path: "0"
+
+  #A string of five digits (0 or 1) that controls which distortion coefficients
+  #among K1-K5 will be fixed (1 = fixed)
+  Calibrate_FixDistCoeffs: "00111"
+  #A non-zero input will fix the aspect ratio
+  Calibrate_FixAspectRatio: 0
+  #Assume zero tangential distortion
+  Calibrate_AssumeZeroTangentialDistortion: 1
+  #Fix the principal point at the center
+  Calibrate_FixPrincipalPointAtTheCenter: 0
+
+  # Alpha_parameter: the free scaling factor.
+  # If -1, the focal lengths of the camera
+  # are kept fixed during rectification -- when computing the
+  # projection matrices.
+  # If 1, the rectified images are decimated and shifted
+  # so that all the pixels from the original image are retained
+  # in the rectified image -- focal lengths get reduced in the process.
+  # If 0, the received pictures are zoomed and shifted
+  # so that only valid pixels are visible -- focal lengths get increased in the process 
+  Alpha_parameter: -1
+  
+  # Integer factor that controls the size of the rectified images
+  # relative to the pictures original size
+  Resizing_factor: 2
+  
+  # If 1, the program computes the masks to crop the
+  # rectified images down to their region of interest.
+  Cropping_After_Rectification: 0
+  
+  #Show undistorted images after intrinsic calibration
+  Show_UndistortedImages: 0
+  #Show rectified images after stereo calibration
+  Show_RectifiedImages: 1
+  #Wait until a key is pressed to show the next detected image
+  Wait_NextDetectedImage: 0
+ 
