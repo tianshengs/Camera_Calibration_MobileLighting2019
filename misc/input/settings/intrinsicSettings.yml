@@ -29,7 +29,7 @@ Settings:
   Num_of_Boards: 1
 
   #Filename for image list
-  ImageList_Filename: "../imageLists/intrinsicsList.yml"
+  ImageList_Filename: "../imageList/intrinsicsList.yml"
   #Intrinsic input filename. These intrinsics can be used as an initial estimate
   #for intrinsic calibration, as fixed intrinsics for stereo calibration, or to
   #preview undistortion in preview mode
