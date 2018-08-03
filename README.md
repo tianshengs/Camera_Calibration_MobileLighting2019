@@ -135,14 +135,14 @@ Following this procedure leads to robust and reliable rotation and translation m
 The program plugs these resulting extrinsics into OpenCV's [stereoRectify function](https://docs.opencv.org/3.2.0/d9/d0c/group__calib3d.html#ga617b1685d4059c6040827800e72ad2b6),
 which calculates the necessary rectification transformations and projection matrices
 to create rectified image pairs. It is possible to specify some rectification settings in the settings file:
-- The `Alpha_parameter` or free scaling factor. The default is `-1`.   # Alpha_parameter: the free scaling factor.
+- The **Alpha_parameter** or free scaling factor. The default is `-1`.   # Alpha_parameter: the free scaling factor.
   If -1, the focal lengths of the camera are kept fixed during rectification -- when computing the projection matrices.
   If 1, the rectified images are decimated and shifted so that all the pixels from the original image are retained in the rectified image -- focal lengths get reduced in the process.
   If 0, the received pictures are zoomed and shifted so that only valid pixels are visible -- focal lengths get increased in the process.
-- The `Resizing_factor`. It is an integer factor that controls the size of the rectified images relative to the pictures original size.
+- The **Resizing_factor**. It is an integer factor that controls the size of the rectified images relative to the pictures original size.
   It is useful when the user is planning to perform an accurate cropping of the rectified images. If the rectified images are 3 times larger than the original size,
   then it will be easy to crop them accurantely and safely. This connects to the last settings option, which follows.
-- The `Cropping_After_Rectification`. If 1, the program computes the masks to crop the rectified images down to their region of interest. The masks are computed using OpenCV thresholding
+- The **Cropping_After_Rectification**. If 1, the program computes the masks to crop the rectified images down to their region of interest. The masks are computed using OpenCV thresholding
   functions, and then connectedComponentsWithStats() which finds quickly and efficiently the region of interest of the rectified image.
   This allows the user to remove the (unnecessary) black background, which often takes a large portion of the rectified images. 
 
@@ -158,8 +158,8 @@ The program will output the resulting extrinsics in a file specified by the sett
 the stereo calibration parameters (rotation matrix, translation vector, and essential/fundamental matrices); and
 the rectification parameters (rectification transformations, projection matrices,
 and disparity-to-depth mapping matrix). 
-If `Cropping_After_Rectification` is 1, the program will output an additional extrinsics file, **ExtrinsicOutput_Filename_withMasks**,
-which contains *also* the masks for cropping the rectified images down to the region of interest.
+If `Cropping_After_Rectification` is 1, the program will output an additional extrinsics file, *ExtrinsicOutput_Filename_withMasks.yml*,
+which contains *also* the masks for cropping the rectified images down to the regions of interest.
 
 ## Auxiliary Programs
 
@@ -173,7 +173,7 @@ $ ./detection_check
 * The version in *src* is designed to be called by larger applications. It does not have a *main* method, and thereby it works like a simple script. When called within larger applications, it returns the number of corners detected for each board from the two stereo viewpoints, and it returns also the number of detected corners that are shared between viewpoints. 
 
 ### Image lists
-The auxiliary C++ program [*imageList_creator*](src-vis/imageList_creator.cpp) can be used to create a new image list. If the order of the images in the image list is not relevant (e.g. during intrinsic calibration), you can create a new image list as follows:
+The auxiliary C++ program [*imageList_creator*](utils/imageList_creator.cpp) can be used to create a new image list. If the order of the images in the image list is not relevant (e.g. during intrinsic calibration), you can create a new image list as follows:
 ```
 ./imageList_creator [imagelist_filename.yml] [path to images]
 ```
@@ -183,7 +183,7 @@ You can also create an image list with the necessary format for stereo calibrati
 ```
 
 ### New chessboards patterns
-The auxiliary C++ program [*create_new_chessboard*](src-vis/create_new_chessboard.cpp) was introduced in the "**ArUco Calibration Patterns**" paragraph. The output of `./create_new_chessboard -h` is below:
+The auxiliary C++ program [*create_new_chessboard*](utils/create_new_chessboard.cpp) was introduced in the "**ArUco Calibration Patterns**" paragraph. The output of `./create_new_chessboard -h` is below:
 ```
 Usage: create_new_chessboard [params] [outfile]
 
@@ -214,8 +214,8 @@ Usage: create_new_chessboard [params] [outfile]
 ```
 
 ## Closing Remarks and Tips
-x
-* A single change is required if you are using the most recent OpenCV versions (above OpenCV3.2).
+
+A single change is required if you are using the most recent OpenCV versions (above OpenCV3.2).
 In the function `arucoDetect(...)` in *calibration.cpp*:  
 Comment out: ` detectorParams-> doCornerRefinement = true;`  
 Uncomment:` detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_SUBPIX;`
