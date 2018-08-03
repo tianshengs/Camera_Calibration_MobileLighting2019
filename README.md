@@ -215,14 +215,8 @@ Usage: create_new_chessboard [params] outfile
 
 * A single change is required if you are using the most recent OpenCV versions (above OpenCV3.2).
 In the function `arucoDetect(...)` in *calibration.cpp*:  
-Comment out:
-```
-detectorParams-> doCornerRefinement = true; //corner refinement, OpenCV 3.2.
-```
-Uncomment:
-```
-detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_SUBPIX; //corner refinement, OpenCV 3.3 and above.
-```
+Comment out: ` detectorParams-> doCornerRefinement = true; //corner refinement, OpenCV 3.2.`
+Uncomment:` detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_SUBPIX; //corner refinement, OpenCV 3.3 and above.`
 
 ##### Footnotes
 [1] In fact, it is  possible to use almost all programs in the *src* directory even outside of larger applications.
