@@ -1,3 +1,8 @@
+// Tommaso Monaco, Middlebury College, Summer 2018. 
+//  Creates an AruCo chessboard. It is possible to specified the (numerically) first marker id on the board.
+//  Based the first id, the board is drawn using it and the subsequent ids.
+//  For example, a 4x4 board with first marker 1, uses the following ids: 1,2,3,...,25.  
+
 #include <stdio.h>
 #include "opencv2/opencv.hpp"
 #include "opencv2/aruco.hpp"
@@ -18,22 +23,22 @@ std::vector< int > ids_vector;
 using namespace cv;
 
 namespace {
-const char* about = "Create an ArUco grid board image";
+const char* about = "Create an ArUco chessboard image";
 const char* keys  =
         "{@outfile |<none> | Output image }"
         "{w        |       | Number of markers in X direction }"
         "{h        |       | Number of markers in Y direction }"
         "{l        |       | Marker side length (in pixels) }"
         "{s        |       | Separation between two consecutive markers in the grid (in pixels)}"
-        "{d        |       | dictionary: DICT_4X4_50=0, DICT_4X4_100=1, DICT_4X4_250=2,"
-        "DICT_4X4_1000=3, DICT_5X5_50=4, DICT_5X5_100=5, DICT_5X5_250=6, DICT_5X5_1000=7, "
-        "DICT_6X6_50=8, DICT_6X6_100=9, DICT_6X6_250=10, DICT_6X6_1000=11, DICT_7X7_50=12,"
-        "DICT_7X7_100=13, DICT_7X7_250=14, DICT_7X7_1000=15, DICT_ARUCO_ORIGINAL = 16}"
+        "{d        | 11    | dictionary: DICT_4X4_50=0, DICT_4X4_100=1, DICT_4X4_250=2, \n"
+        "                  DICT_4X4_1000=3, DICT_5X5_50=4, DICT_5X5_100=5, DICT_5X5_250=6, DICT_5X5_1000=7, \n" 
+        "                  DICT_6X6_50=8, DICT_6X6_100=9, DICT_6X6_250=10, DICT_6X6_1000=11, DICT_7X7_50=12, \n"
+        "                  DICT_7X7_100=13, DICT_7X7_250=14, DICT_7X7_1000=15, DICT_ARUCO_ORIGINAL = 16} "
         "{m        |       | Margins size (in pixels). Default is marker separation (-s) }"
         "{b        | 1     |'1': save maps with border, '0': no border (1 default)}"
         "{bb       | 1     | Number of bits in marker borders }"
         "{n        | 1     | Number of boards}"
-        "{r        |       | Board type: range 1-dictionary }"
+        "{f        |       | first marker: range from 1 to [ictionary size] }"
         "{si       | false | show generated image }";
 }
 
@@ -76,12 +81,10 @@ Ptr<ChessBoard> ChessBoard::create(int markersX, int markersY, float markerLengt
     size_t totalMarkers = (size_t) ( markersX * markersY )+ ( (markersX-1) * (markersY-1) );
     res->ids.resize(totalMarkers);
     res->objPoints.reserve(totalMarkers);
-
-    //srand(firstMarker);
     
     // fill ids with first identifiers
     for(unsigned int i = 0; i < totalMarkers; i++) {
-      res->ids[i] =  i + firstMarker;    //rand()%1000 ;
+      res->ids[i] =  i + firstMarker;  
       cout << res->ids[i] << endl;
     }
 
@@ -164,9 +167,7 @@ int main(int argc, char *argv[]) {
     Ptr<aruco::Dictionary> dictionary =
       aruco::getPredefinedDictionary
       (aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
-    
-    
-    
+      
 
     Ptr<ChessBoard> board = ChessBoard::create(markersX, markersY, float(markerLength),
 					       float(markerSeparation), dictionary, randomSeed);
@@ -175,13 +176,11 @@ int main(int argc, char *argv[]) {
     // show created board  
     Mat boardImage;
     drawPlanarBoard(board, imageSize, boardImage, margins, borderBits);
-
-
     
     if (border) {
       float maxY = (float) markersY * markerLength + (markersY - 1) * markerSeparation + margins ;
       float maxX = (float) markersX * markerLength + (markersX - 1) * markerSeparation + margins ;
-      float bSize = (markerLength * 0.05);
+      //float bSize = (markerLength * 0.05);
       int borderX = 0;
       int borderY = 0;
       
@@ -204,10 +203,9 @@ int main(int argc, char *argv[]) {
       }
       
       
-	Mat cropped =
-	  boardImage(Rect(markerLength * 0.5 , markerLength *0.5,
-			  imageSize.width - markerLength ,
-			  imageSize.height - markerLength));
+	Mat cropped = boardImage(Rect(markerLength * 0.5 , markerLength *0.5,
+				      imageSize.width - markerLength ,
+				      imageSize.height - markerLength));
       
 	cropped.copyTo(boardImage);
 
