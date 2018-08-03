@@ -60,8 +60,8 @@ To use this functionality, you must uncomment the other write() function outside
 Two modes are supported: **INTRINSIC**, **STEREO**.  
 Two calibration patterns are supported: **CHESSBOARD**, **ARUCO_SINGLE**, where CHESSBOARD represents a traditional black-and-white chessboard.
 
-All modes require a YAML/XML [image list](misc\input\imagelists) with paths to the input
-[images](misc\input\imagelists), specified by the setting: **imageList_Filename**.
+All modes require a YAML/XML [image list](misc\input\imageLists) with paths to the input
+[images](misc\input\images), specified by the setting: **imageList_Filename**.
 
 ### ArUco Calibration Patterns
 ArUco patterns are barcode patterns, and they are comprised of markers with unique IDs based on a modified Hamming code. 
@@ -75,7 +75,7 @@ markers, then the board will have IDs: 300, 301, 302, ... 399. It is important t
   First_Marker: [0, 113]
 ```
 
-To create your own ArUco chessboard, use the [*create_new_chessboard*](utils/createArucoPatterns.cpp)
+To create your own ArUco chessboard, use the [*create_new_chessboard*](utils/create_new_chessboard.cpp)
 utility program. This program will create a new chessboard with unique markers, allowing simultaneous detection of multiple patterns.
 In a terminal, type: 
 `./create_new_chessboard -h` 
@@ -83,7 +83,7 @@ for more information about all the possible input parameters.
 
 ### Intrinsic Calibration     
 Intrinsic mode uses OpenCV's [calibrateCamera function](https://docs.opencv.org/3.2.0/d9/d0c/group__calib3d.html#ga3207604e4b1a1758aa66acb6ed5aa65d) to perform intrinsic camera calibration. It requires an imageList with
-images from a single viewpoint ([example set](misc\input\images\intrinsics\)). It can be run
+images from a single viewpoint ([example set](misc/input/images/intrinsics/)). It can be run
 with  both calibration patterns. The first step of the calibration pipeline is to calculate
 camera intrinsics using a high-quality set of (Aruco or traditional) chessboard images. The images must be collected in a .yml image list.
 In order to compute intrinsic camera parameters successfully, it is advised to do the following:
@@ -114,7 +114,7 @@ not exist (*the path must be created beforehand*).
 ### Stereo Calibration
 Stereo mode uses OpenCV's [stereoCalibrate function](https://docs.opencv.org/3.2.0/d9/d0c/group__calib3d.html#ga246253dcc6de2e0376c599e7d692303a)
 to perform extrinsic calibration. It requires an imageList with image pairs of an
-identical scene from two viewpoints ([example set](misc\input\images\extrinsics)). The order
+identical scene from two viewpoints ([example set](misc/input/images/extrinsics/)). The order
 of image paths within the image list is important: it must alternate between viewpoints (left1 right1 left2 right2).
 With both calibration patterns, the intrinsic input is optional but strongly advised for a good calibration. If it is left at "0," the program will calculate
 independent intrinsics for each viewpoint and input these into the stereoCalibrate function.
