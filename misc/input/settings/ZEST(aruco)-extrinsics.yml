@@ -13,11 +13,11 @@ Settings:
   #The size of a square in some user defined metric system (pixel, millimeter, e - tc.)
   SquareSize: 25.4
 
-#If AruCo, specify the number of markers, the markers' length,
-# the markers' dictionary, the id (integer)
-# of the first marker, and the number of boards.
-#Give data as an array
-# e.g. numMarkersY: [8, 7] if two boards are used
+  #If AruCo, specify the number of markers, the markers' length,
+  # the markers' dictionary, the id (integer)
+  # of the first marker, and the number of boards.
+  #Give data as an array
+  # e.g. numMarkersY: [8, 7] if two boards are used
   Num_MarkersX: [8, 8, 12]
   Num_MarkersY: [7, 8, 9]
   #The length of the markers in pixels   
@@ -29,7 +29,7 @@ Settings:
   Num_of_Boards: 3
 
   #Filename for image list
-  ImageList_Filename: "./extrinsicsList07-12.yml"
+  ImageList_Filename: "./extrinsicsList.yml"
   #Intrinsic input filename. These intrinsics can be used as an initial estimate
   #for intrinsic calibration, as fixed intrinsics for stereo calibration, or to
   #preview undistortion in preview mode
@@ -37,21 +37,21 @@ Settings:
   IntrinsicInput_Filename: "./instrinsic.yml"
 
   #File to write results of inrinsic calibration
-  IntrinsicOutput_Filename: "0" #"testinstrinsic.yml"
+  IntrinsicOutput_Filename: "0"
   #File to write extrinsics of stereo calibration
-  ExtrinsicOutput_Filename: "TESTSTEREO07-09.yml"
+  ExtrinsicOutput_Filename: "extrinsics.yml"
 
   #LEAVE THESE SETTINGS AT "0" TO NOT SAVE IMAGES
   #Path at which to save undistorted images
   UndistortedImages_Path: "0"
   #Path at which to save rectified images
-  RectifiedImages_Path: "./test/"
+  RectifiedImages_Path: "0"
   #Path at which to save images with detected patterns drawn
   DetectedImages_Path: "0"
 
   #A string of five digits (0 or 1) that controls which distortion coefficients
   #among K1-K5 will be fixed (1 = fixed)
-  Calibrate_FixDistCoeffs: "00111"
+  Calibrate_FixDistCoeffs: "00011"
   #A non-zero input will fix the aspect ratio
   Calibrate_FixAspectRatio: 0
   #Assume zero tangential distortion
