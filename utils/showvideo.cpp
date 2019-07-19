@@ -198,14 +198,6 @@ int main(int argc, char** argv)
         float markerLength = 100;
         int firstmarker = 600;
 
-
-        //define the variables used to create ChArUco pattern
-        //int squareX2 = 14;
-        //int squareY2 = 10;
-        //float squareLength2 = 120;
-        //float markerLength2 = 100;
-        //int firstmarker2 = 600;
-
         //create and save a new Charuco board
         Ptr<aruco::CharucoBoard> board = generateCharucoBoard(squareX, squareY, squareLength, markerLength, dictionary, firstmarker);
         //Ptr<aruco::CharucoBoard> board2 = generateCharucoBoard(squareX2, squareY2, squareLength2, markerLength2, dictionary, firstmarker2);
@@ -229,9 +221,7 @@ int main(int argc, char** argv)
             // if at least one charuco corner detected
             if(charucoIds.size() > 0)
                 drawDetectedChArUco(frame, charucoCorners, charucoIds);
-            //if(charucoIds2.size() > 0)
-            //    drawDetectedChArUco(frame, charucoCorners2, charucoIds2);
-
+          
         }
 
        //uncomment to detect and draw chessboard corners
@@ -264,18 +254,9 @@ int main(int argc, char** argv)
             i = i + 1;
         }
 
-        if (k == 'q'){
-            break;/*
-            FileStorage fs(inputSettingsFile, FileStorage:inputSettingsFil:WRITE);
-            fs << "images" << "[";
-            for (int j = 0; j < i; j++ ){
-                string filename = format("frame0%d.png", j);
-                fs << filename;
-            }
-            fs << "]";
-            fs.release();
-            //calibrateWithSettings(inputSettingsFile);
-        */}
+        if (k == 'q')
+            break;
+     
     }
 
     return 0;
