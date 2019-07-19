@@ -54,13 +54,14 @@ Ptr<aruco::CharucoBoard> generateCharucoBoard (int markersX, int markersY, float
 
 }
 
+//the main function
 int main(int argc, char *argv[]) {
     CommandLineParser parser(argc, argv, keys);
     parser.about(about);
 
     if(argc < 7) {
         parser.printMessage();
-        return 0;aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(11));
+        return 0;
     }
 
     Mat boardImage;
@@ -76,7 +77,6 @@ int main(int argc, char *argv[]) {
     bool showImage = parser.get<bool>("si");
     int firstMarker  = parser.get<int>("f");
 
-
     String out = parser.get<String>(0);
 
     if(!parser.check()) {
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-
+    //get dictionary
     Ptr<aruco::Dictionary> dictionary =
       aruco::getPredefinedDictionary
       (aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
@@ -95,6 +95,7 @@ int main(int argc, char *argv[]) {
 
     //define the image size
     Size imageSize;
+
     if (border) {
         imageSize.width = squareX * squareLength + 2 * borderBits;
         imageSize.height = squareY * squareLength + 2 * borderBits;
@@ -106,7 +107,7 @@ int main(int argc, char *argv[]) {
     //draw the image
     board->draw(imageSize, boardImage, borderBits, 1);
 
-
+    //if showImage, show the image
     if(showImage) {
         imshow("board", boardImage);
         waitKey(0);
