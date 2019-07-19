@@ -1,6 +1,6 @@
 # Camera Calibration Summer 2019
 
-##### Written by Tomasso Monaco and revised by Tiansheng Sun 
+#### Written by Tomasso Monaco and revised by Tiansheng Sun 
 
 A C++ camera calibration program that performs both intrinsic and stereo
 calibration. It supports calibration with more than one board in the scene.
