@@ -124,7 +124,6 @@ void setUpAruco_( Settings s, intrinsicCalibration &inCal, intrinsicCalibration 
     if(s.mode == Settings::INTRINSIC) {
 
         int detected0;
-        cout<<inCal.objectPoints.size();
 
         //if the image is not detected
         if (inCal.objectPoints.size() <= 0)
@@ -140,7 +139,7 @@ void setUpAruco_( Settings s, intrinsicCalibration &inCal, intrinsicCalibration 
         << " with marker size " << s.markerLength[n]
         << " is "
         << detected0 << endl
-        << "Percentage of corners detected:"
+        << " Percentage of corners detected:"
         << percentage << endl;
 
         returnVector_.push_back(detected0);
@@ -154,6 +153,7 @@ void setUpAruco_( Settings s, intrinsicCalibration &inCal, intrinsicCalibration 
         allCornersConcatenated2_.clear();
         allIdsConcatenated2_.clear();
         markerCounterPerFrame2_.clear();
+        cout<<inCal.objectPoints.size();
 
         markerCounterPerFrame2_.reserve(inCal2.allCorners.size());
         for(unsigned int i = 0; i < inCal2.allCorners.size(); i++) {
