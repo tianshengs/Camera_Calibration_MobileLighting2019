@@ -1,6 +1,6 @@
 # Camera Calibration Summer 2019
 
-#### Written by Tomasso Monaco and Tiansheng Sun 
+#### Written by Tiansheng Sun and Tomasso Monaco
 
 A C++ camera calibration program that performs both intrinsic and stereo
 calibration. It supports calibration with more than one board in the scene.
@@ -217,7 +217,6 @@ Usage: create_new_chessboard [params] [outfile]
 ```
 
 ## Closing Remarks and Tips
-
 A single change is required if you are using the most recent OpenCV versions (above OpenCV3.2).
 In the function `arucoDetect(...)` in *calibration.cpp*:  
 Comment out: ` detectorParams-> doCornerRefinement = true;`  
