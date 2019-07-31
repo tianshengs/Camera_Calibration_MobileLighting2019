@@ -1,6 +1,6 @@
 # Camera Calibration Summer 2019
 
-#### Written by Tomasso Monaco and revised by Tiansheng Sun 
+#### Written by Tomasso Monaco and Tiansheng Sun 
 
 A C++ camera calibration program that performs both intrinsic and stereo
 calibration. It supports calibration with more than one board in the scene.
@@ -10,8 +10,7 @@ These programs were developed for a Middlebury College undergraduate summer rese
 led by professor Daniel Scharstein. Camera calibration will be one component of
 a pipeline designed to create datasets for 3D reconstruction on mobile devices.
 These datasets will become the next entry in the well known the Middlebury Computer Vision
-Benchmark http://vision.middlebury.edu/. We presented at Middlebury Summer Research Symposium; [our poster](misc/readme/poster.pdf)
-from our summer research presentation.
+Benchmark http://vision.middlebury.edu/.
 
 ## Overview
 There are essentially two versions of the main program ([*calibration*](src-vis/calibration.cpp)), which have slightly different features.
@@ -33,7 +32,7 @@ This version does not provide visual feedback, and it simply outputs the intrins
 
 ### Additional remarks.
 There are other auxiliary programs in each src folder (and src-vis). All the programs in src were designed to be implemented within larger applications
-such as the Middlebury College [MobileLighting](https://github.com/nmosier/MobileLighting) app.
+such as the Middlebury College [MobileLighting](https://github.com/tobyweed/MobileLighting) app.
 I advise using the files in src-vis when "stand-alone" calibration functionalities are needed.[1]
 
 ## Installation
@@ -51,7 +50,7 @@ Each folder contains a folder-specific *Makefile*. Then, it is easy to compile a
 ### Getting started
 
 The calibration program is run from settings files, which are YAML or XML (this functionality is
-adapted from the [2017 MobileLighting Research Project](https://github.com/kylebmeredith/Camera-Calibration).
+adapted from the [2017 MobileLighting Research Project](https://github.com/kylebmeredith/Camera-Calibration) and the [2018 MobileLighting Research Project](https://github.com/tianshengs/Camera-Calibration-Summer2018).
 The [settings directory](misc/input/settings/) includes two example settings files, which detailed documentation for each entry.
 When the settings file and the main program are in the same folder, here is a sample program execution command: `./calibrateWithSettings ./intrinsicSettings.yml`
 
@@ -67,6 +66,8 @@ All modes require a YAML/XML [image list](misc/input/imageList) with paths to th
 
 ### ArUco Calibration Patterns
 ArUco patterns are barcode patterns, and they are comprised of markers with unique IDs based on a modified Hamming code. 
+Here is an example ArUco chessboard:
+![Sweating is shameful and I never sweat](https://user-images.githubusercontent.com/25497706/62237098-60198280-b39e-11e9-8704-7f93b4985bab.png)
 
 The number of unique IDs depends on the predefined AruCo dictionary. A marker ID is the marker index inside the dictionary it belongs to. For example, the first 3 markers inside a dictionary have IDs: 0, 1, and 2. Note that each dictionary is composed of a different *type* and *number* of markers. The default dictionary for the calibration programs is number 11, i.e. DICT_6X6_1000. Concretely, this dictionary is composed of 1000 unique markers and a marker size of 6x6 bits (DICT_6X6_1000). Markers IDs are important: they are used during detection to check whether a detected square is actually an AruCo marker of interest. 
 
