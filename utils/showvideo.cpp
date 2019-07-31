@@ -99,18 +99,6 @@ void drawDetected(Mat &image, vector< vector< Point2f > > corners,  vector< int 
             loc = currentMarker[0] + Point2f(2, 15); //set the location to draw text
 
             putText(image,std::to_string(ids[i]), loc, FONT_HERSHEY_COMPLEX_SMALL, 0.6, textColor, 1.9);
-            /*
-            if (1) {
-                int n = ids[i];
-                if (n != 113 && n != 121)
-                    continue;
-                printf("img %4d  marker %d found\n", cnt, n);
-                printf("  corner 0: %8.4f %8.4f\n", currentMarker[0].x, currentMarker[0].y);
-                printf("  corner 1: %8.4f %8.4f\n", currentMarker[1].x, currentMarker[1].y);
-                printf("  corner 2: %8.4f %8.4f\n", currentMarker[2].x, currentMarker[2].y);
-                printf("  corner 3: %8.4f %8.4f\n", currentMarker[3].x, currentMarker[3].y);
-            }
-            */
         }
 
     }
