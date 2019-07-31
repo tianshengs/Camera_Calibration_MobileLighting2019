@@ -7,7 +7,7 @@ Tommaso Monaco's 2018 work.
 This program inherits some aspects from calibrate_camera.cpp, an example calibration programs provided by opencv.
 
 The program has three modes: intrinsic calibration, stereo calibration, and live
-feed preview. It supports three patterns: chessboard, and AruCo single.
+feed preview. It supports three patterns: chessboard, ChArUco, and AruCo single.
 
 Read the README for more information and guidance.
 
