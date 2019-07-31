@@ -1,0 +1,26 @@
+%YAML:1.0
+---
+Calibration_Time: "Wed Jun 12 15:09:41 2019"
+Image_Width: 1920
+Image_Height: 1080
+Calibration_Pattern: ARUCO_SINGLE
+Calibration_Flags: "+FIX_K3 +FIX_K4 +FIX_K5 +ZERO_TANGENT_DIST "
+Camera_Matrix: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 1.7340450631615674e+03, 0., 9.6035876487349060e+02, 0.,
+       1.7337611043120676e+03, 5.4093051825344230e+02, 0., 0., 1. ]
+Distortion_Coefficients: !!opencv-matrix
+   rows: 5
+   cols: 1
+   dt: d
+   data: [ 1.2105593124047448e-01, -2.7974748002548672e-01, 0., 0., 0. ]
+Avg_Reprojection_Error: 1.1738730626041782e+00
+Per_View_Reprojection_Errors: !!opencv-matrix
+   rows: 8
+   cols: 1
+   dt: f
+   data: [ 2.32464957e+00, 5.23856997e-01, 1.94577098e-01,
+       9.39752519e-01, 3.78163278e-01, 5.16093671e-01, 2.84861660e+00,
+       3.00969958e+00 ]
