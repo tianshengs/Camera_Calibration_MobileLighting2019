@@ -1,6 +1,8 @@
 /* imdiff.cpp - visual alignment of two images
  *
- * CS 453 openCV demo
+ * imdiff.cpp is a useful program that can be used for visual alignment of two images.
+ * It is useful especially when comparing rectified stereo images. 
+ *
  */
 
 #include <stdio.h>
@@ -27,7 +29,7 @@ void imdiff()
     addWeighted(im0, 1, im1t, -1, 128, imd);
     char txt[100];
     sprintf(txt, "dx=%g  dy=%g", dx, dy);
-    putText(imd, txt, Point(50, 50), FONT_HERSHEY_PLAIN, 2, Scalar(255, 255, 255), 4);
+    putText(imd, txt, Point(5, 10), FONT_HERSHEY_PLAIN, 0.8, Scalar(255, 255, 255));
     imshow(win, imd);
 }
 
@@ -57,6 +59,15 @@ static void onMouse( int event, int x, int y, int, void* )
     }
 }
 
+void help() {
+  printf("j l - left right\n");
+  printf(", . - left right small step\n");
+  printf("i k - up down small step\n");
+  printf("a s - original left right images");
+  printf("space - reset dx, dy\n");
+  printf("ESC, q - quit\n");
+}
+
 int main(int argc, char ** argv)
 {
     if (argc < 3) {
@@ -79,9 +90,7 @@ int main(int argc, char ** argv)
     //cvtColor(im0, im0bw, CV_RGB2GRAY );  
     //cvtColor(im1, im1bw, CV_RGB2GRAY );  
 
-    //namedWindow(win, CV_WINDOW_AUTOSIZE);
-    namedWindow(win, CV_WINDOW_NORMAL);
-    resizeWindow(win, 1480, 920 );
+    namedWindow(win, CV_WINDOW_AUTOSIZE);
     createTrackbar("dx", win, &dxval, 100, changedx);
     setMouseCallback(win, onMouse);
     imdiff();
@@ -93,17 +102,17 @@ int main(int argc, char ** argv)
 	case 27:// ESC
 	case 'q':
 	    return 0;
-	case 2424832: case 65361: case 119: // left arrow
+	case 2424832: case 65361: case 'j': // left arrow, j
 	    dx -= 1; imdiff(); break;
-	case 2555904: case 65363: case 114:  // right arrow
+	case 2555904: case 65363: case 'l': // right arrow, l
 	    dx += 1; imdiff(); break;
 	case ',': // small step to the left
 	    dx -= step; imdiff(); break;
 	case '.': // small step to the right
 	    dx += step; imdiff(); break;
-	case 2490368: case 65362: case 101: // up arrow
+	case 2490368: case 65362: case 'i': // up arrow, i
 	    dy -= step; imdiff(); break; 
-	case 2621440: case 65364: case 100: // down arrow
+	case 2621440: case 65364: case 'k': // down arrow
 	    dy += step; imdiff(); break;
 	case ' ': // reset
 	    dx = 0; dy = 0; imdiff(); break;
@@ -111,10 +120,13 @@ int main(int argc, char ** argv)
 	    imshow(win, im0); break;
 	case 's': // show original right image
 	    imshow(win, im1t); break;
+	case 'd': // difference
+	    imdiff(); break;
+	case 'h': case '?':
+	  help(); break;
 	default:
 	    printf("key %d (%c %d) pressed\n", c, (char)c, (char)c);
 	}
     }
-
     return 0;
 }
