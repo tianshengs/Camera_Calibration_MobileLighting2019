@@ -217,7 +217,7 @@ Usage: create_new_chessboard [params] [outfile]
 ```
 
 ### New Charuco patterns
-The auxiliary C++ program [*create_new_ChaRuCo boards*](utils/ChaRuCo.cpp) can be used to create new ChaRuCo boards for your own use. The output of `./create_new_chessboard -h` is below:
+The auxiliary C++ program [*create_new_ChaRuCo boards*](utils/ChArCo.cpp) can be used to create new ChaRuCo boards for your own use. The output of `./create_new_chessboard -h` is below:
 ```
 Create a ChArUco board image
 Usage: ChArCo [params] outfile 
@@ -236,7 +236,7 @@ Usage: ChArCo [params] outfile
 	-h (value:true)
 		Number of chessboard squares in Y direction
 	-l
-		Marker side length (in pixels)
+		Marker side length (in pixels)```
 	-s
 		Chessboard square side length (in pixels)
 	--si (value:false)
@@ -247,6 +247,23 @@ Usage: ChArCo [params] outfile
 	outfile (value:<none>)
 		Output image
 ```
+
+### Visual Alignment of two images
+The auxiliary C++ program [*imdiff*](utils/imdiff.cpp) can be used for visual alignment of two images.
+It is especially useful when comparing two rectified stereo images. 
+You can use the program like this:
+```
+./imdiff [path to image0] [path to image1] 
+```
+While in the program, you can press key 'h' for more information on how to align the two images:
+```
+j l - left right
+, . - left right small step
+i k - up down small step
+a s - original left right imagesspace - reset dx, dy
+ESC, q - quit
+```
+
 ## Closing Remarks and Tips
 A single change is required if you are using the most recent OpenCV versions (above OpenCV3.2).
 In the function `arucoDetect(...)` in *calibration.cpp*:  
