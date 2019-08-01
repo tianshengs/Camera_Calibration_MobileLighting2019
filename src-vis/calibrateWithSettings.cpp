@@ -10,25 +10,40 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-//#include "aruco.h"
 
 using namespace std;
 using namespace cv;
-//using namespace aruco;
 
 #include "calibration.h"
 
 int main( int argc, char** argv )
 {
     const char * inputSettingsFile;
-    if (argc != 2) {
-        cerr << "Usage: calibrateWithSettings [path to settings file]" << endl
-             << "The settings folder contains several example files with "
-                "descriptions of each parameter. Check the README for more detail." << endl;
-        return -1;
-    }
-    else {
+
+    //for calibration
+    if (argc == 2) {
         inputSettingsFile = argv[1];
         calibrateWithSettings(inputSettingsFile);
     }
-}
+
+    //for one board detection check
+    else if (argc == 3) {
+        detectionCheck(argv[1], argv[2]);
+    }
+
+    //for stereo detection check
+    else if (argc == 4) {
+        detectionCheck(argv[1], argv[2], argv[3]);
+    }
+
+    else {
+        cerr << "Usage: calibrateWithSettings [path to settings file]"
+             << "to do calibration;" << endl << endl
+             << "Usage: calibrationWithSettings [path to settings file] [img0] [img1] "
+             << "to do detection check." << endl << endl
+             << "The settings folder contains several example files with "
+                "descriptions of each parameter. Check the README for more detail." << endl;
+        return -1;
+    };
+
+};
