@@ -59,7 +59,7 @@ To use this functionality, you must uncomment the other write() function outside
 (check out the [OpenCV Filestorage documentation](http://docs.opencv.org/3.0-rc1/dd/d74/tutorial_file_input_output_with_xml_yml.html) for more information).
 
 Two modes are supported: **INTRINSIC**, **STEREO**.  
-Two calibration patterns are supported: **CHESSBOARD**, **ARUCO_SINGLE**, **CHARUCO**, where CHESSBOARD represents a traditional black-and-white chessboard and CHARUCO represents a combination of black-and-white chessboard and Aruco board. 
+Three calibration patterns are supported: **CHESSBOARD**, **ARUCO_SINGLE**, **CHARUCO**, where CHESSBOARD represents a traditional black-and-white chessboard and CHARUCO represents a combination of black-and-white chessboard and Aruco board. 
 
 All modes require a YAML/XML [image list](misc/input/imageList) with paths to the input
 [images](misc/input/images), specified by the setting: **imageList_Filename**.
@@ -168,12 +168,13 @@ which contains *also* the masks for cropping the rectified images down to the re
 
 ### Feedback detection
 The auxiliary C++ program [*detection_check*](src-vis/detection_check.cpp) can be used to provide general feedback regarding the status of the AruCo detection. 
-The function can be used to detect a single image:
-
+The function can be used to detect a single image for intrinsic calibration:
+```
+$ ./detection_check [path to settings file] [path to img]
+```
 or two images in a stereo pair with the *same* settings file used for calibration as arguments:
 ```
-$ ./detection_check
-  Usage: ./detection_check [path to settings file] [path to img1] [path to img2]
+$ ./detection_check [path to settings file] [path to img0] [path to img1]
 ```
 * The version in *src* is designed to be called by larger applications. It does not have a *main* method, and thereby it works like a simple script. When called within larger applications, it returns the number of corners detected for each board from the two stereo viewpoints, and it returns also the number of detected corners that are shared between viewpoints. 
 
