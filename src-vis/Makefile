@@ -1,7 +1,6 @@
-SRC =  calibration.cpp  calibrateWithSettings.cpp 
+SRC =  calibration.cpp  calibrateWithSettings.cpp detection_check.cpp
 
-BIN = calibrateWithSettings   \
-      detection_check det_check
+BIN = calibrateWithSettings
 
 DBG= -g
 CC = g++
@@ -19,3 +18,4 @@ calibrateWithSettings: $(OBJ)
 	$(CC) -o $@  $(OBJ) $(LDLIBS)
 
 clean: rm -f $(BIN) *.o core*
+
