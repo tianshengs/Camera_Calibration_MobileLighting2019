@@ -4,7 +4,7 @@ Settings:
   #   INTRINSIC  — calculates intrinsics parameters and  undistorts images
   #   STEREO     — calculates extrinsic stereo paramaters and rectifies images
   Mode: STEREO
-  #Three supported calibration patterns: CHESSBOARD, ARUCO_SINGLE
+  #Three supported calibration patterns: CHESSBOARD, ARUCO_SINGLE, CHARUCO
   Calibration_Pattern: ARUCO_SINGLE
 
   #Number of inner corners per chessboard row and column
