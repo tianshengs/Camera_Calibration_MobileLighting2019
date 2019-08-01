@@ -6,31 +6,31 @@ Here are a list of Calibration boards (pdf and jpg versions) that have already b
 * **Markers**: 0-112 
 * **Number_of_Markers_X**: 8 
 * **Number_of_Markers_Y**: 8 
-* **Marker_Length**: 96 (in pixel)
+* **Marker_Length**: 96(in pixel)
 * **dictionary**: 11
 ### [Board 2](AruCo%20Boards/board_113-225.jpg): 
 * **Markers**: 113-225 
 * **Number_of_Markers_X**: 8 
 * **Number_of_Markers_Y**: 8 
-* **Marker_Length**: 96 (in pixel)
+* **Marker_Length**: 96(in pixel)
 * **dictionary**: 11
 ### [Board 3](AruCo%20Boards/board_226-319.jpg): 
 * **Markers** 226-319 
 * **Number_of_Markers_X**: 9 
 * **Number_of_Markers_Y**: 6 
-* **Marker_Length**: 96 (in pixel)
+* **Marker_Length**: 96(in pixel)
 * **dictionary**: 11
 ### [Board 4](AruCo%20Boards/board_320-515.jpg): 
 * **Markers**: 320-515 
 * **Number_of_Markers_X**: 9 
 * **Number_of_Markers_Y**: 12 
-* **Marker_Length**: 96 (in pixel)
+* **Marker_Length**: 96(in pixel)
 * **dictionary**: 11
 ### [Board 5](AruCo%20Boards/board_516-613.jpg): 
 * **Markers**: 516-613 
 * **Number_of_Markers_X**: 7 
 * **Number_of_Markers_Y**: 8 
-* **Marker_Length**: 144 (in pixel)
+* **Marker_Length**: 144(in pixel)
 * **dictionary**: 11
 ### [Board 6](AruCo%20Boards/board_614-685.jpg): 
 * **Markers**: 614-685 
