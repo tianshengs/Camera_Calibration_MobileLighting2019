@@ -164,20 +164,18 @@ and disparity-to-depth mapping matrix).
 If `Cropping_After_Rectification` is 1, the program will output an additional extrinsics file, *ExtrinsicOutput_Filename_withMasks.yml*,
 which contains *also* the masks for cropping the rectified images down to the regions of interest.
 
-## Auxiliary Programs
-
 ### Feedback detection
 The auxiliary C++ program [*detection_check*](src-vis/detection_check.cpp) can be used to provide general feedback regarding the status of the AruCo detection. 
-The function can be used to detect a single image for intrinsic calibration:
+The function can be used to detect a single image with a Settings file used for intrinsic calibration:
 ```
 $ ./detection_check [path to settings file] [path to img]
 ```
-or two images in a stereo pair with the *same* settings file used for calibration as arguments:
+or two images in a stereo pair with the *same* Settings file used for calibration as arguments:
 ```
 $ ./detection_check [path to settings file] [path to img0] [path to img1]
 ```
-* The version in *src* is designed to be called by larger applications. It does not have a *main* method, and thereby it works like a simple script. When called within larger applications, it returns the number of corners detected for each board from the two stereo viewpoints, and it returns also the number of detected corners that are shared between viewpoints. 
 
+## Auxiliary Programs
 ### Image lists
 The auxiliary C++ program [*imageList_creator*](utils/imageList_creator.cpp) can be used to create a new image list. If the order of the images in the image list is not relevant (e.g. during intrinsic calibration), you can create a new image list as follows:
 ```
@@ -252,7 +250,7 @@ Usage: ChArCo [params] outfile
 ```
 
 ### Visual Alignment of two images
-The auxiliary C++ program [*imdiff*](utils/imdiff.cpp) can be used for visual alignment of two images.
+The auxiliary C++ program [*imdiff*](utils/imdiff.cpp), which was mentioned in the "**Stereo Calibration**" section, can be used for visual alignment of two images.
 It is especially useful when comparing two rectified stereo images. 
 You can use the program like this:
 ```
