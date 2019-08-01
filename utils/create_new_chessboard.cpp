@@ -36,7 +36,7 @@ const char* keys  =
         "                  DICT_7X7_100=13, DICT_7X7_250=14, DICT_7X7_1000=15, DICT_ARUCO_ORIGINAL = 16} "
         "{b        | 1     |'1': save maps with border, '0': no border}"
         "{bb       | 1     | Number of bits in marker borders }"
-        "{f        |       | first marker: range from 1 to [ictionary size] }"
+        "{f        |       | first marker: range from 1 to [dictionary size] }"
         "{si       | false | show generated image }";
 }
 
