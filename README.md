@@ -50,7 +50,7 @@ Each folder contains a folder-specific *Makefile*. Then, it is easy to compile a
 ### Getting started
 
 The calibration program is run from settings files, which are YAML or XML (this functionality is
-adapted from the [2017 MobileLighting Research Project](https://github.com/kylebmeredith/Camera-Calibration) and the [2018 MobileLighting Research Project](https://github.com/tianshengs/Camera-Calibration-Summer2018).
+adapted from the [2017 MobileLighting Research Project](https://github.com/kylebmeredith/Camera-Calibration) and the [2018 MobileLighting Research Project](https://github.com/tommaso-monaco/Camera-Calibration-Summer2018).
 The [settings directory](misc/input/settings/) includes two example settings files, which detailed documentation for each entry.
 When the settings file and the main program are in the same folder, here is a sample program execution command: `./calibrateWithSettings ./intrinsicSettings.yml`
 
