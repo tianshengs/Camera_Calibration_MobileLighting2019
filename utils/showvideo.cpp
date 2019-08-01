@@ -188,8 +188,7 @@ int main(int argc, char** argv)
 
         //create and save a new Charuco board
         Ptr<aruco::CharucoBoard> board = generateCharucoBoard(squareX, squareY, squareLength, markerLength, dictionary, firstmarker);
-        //Ptr<aruco::CharucoBoard> board2 = generateCharucoBoard(squareX2, squareY2, squareLength2, markerLength2, dictionary, firstmarker2);
-
+       
         Scalar textColor, cornerColor, borderColor;
         borderColor = Scalar(51, 153, 255);
         cornerColor = Scalar(0, 50, 255);
@@ -204,7 +203,6 @@ int main(int argc, char** argv)
 
             drawDetected(frame, markerCorners, markerIds);
             interpolateCornersCharuco(markerCorners, markerIds, frame, board, charucoCorners, charucoIds);
-            //interpolateCornersCharuco(markerCorners, markerIds, frame, board2, charucoCorners2, charucoIds2);
 
             // if at least one charuco corner detected
             if(charucoIds.size() > 0)
