@@ -134,15 +134,17 @@ where one board would have marker length 1.5 inches (108 px) and the other board
 This ensures the efficient acquisition of enough depth data, which is required for a successful computation of the scene depth maps.
 Following this procedure leads to robust and reliable rotation and translation matrices, which are thereby the output of extrinsic calibration.
 * Take about 20 pictures of the calibration patterns from the two stereo viewpoints. It is a good rule of thumb for an accurate calibration pipeline.
-* Picking camera positions for Stereo Calibration is also important. For Stereo rectification, it is good to keep the two positions apart by no more than two times the distance between human's two eyes. 
+* Picking camera positions for stereo calibration is also important. For stereo calibration, it is good to keep the two stereo viewpoints apart by around two times the distance between human's two eyes. 
 
 The program plugs these resulting extrinsics into OpenCV's [stereoRectify function](https://docs.opencv.org/3.2.0/d9/d0c/group__calib3d.html#ga617b1685d4059c6040827800e72ad2b6),
 which calculates the necessary rectification transformations and projection matrices
-to create rectified image pairs. It is possible to specify some rectification settings in the settings file:
+to create rectified image pairs. 
+It is possible to specify some rectification settings in the settings file:
 - The **Alpha_parameter** or free scaling factor. The default is `-1`.   # Alpha_parameter: the free scaling factor.
   If -1, the focal lengths of the camera are kept fixed during rectification -- when computing the projection matrices.
   If 1, the rectified images are decimated and shifted so that all the pixels from the original image are retained in the rectified image -- focal lengths get reduced in the process.
   If 0, the received pictures are zoomed and shifted so that only valid pixels are visible -- focal lengths get increased in the process.
+  
 - The **Resizing_factor**. It is an integer factor that controls the size of the rectified images relative to the pictures original size.
   It is useful when the user is planning to perform an accurate cropping of the rectified images. If the rectified images are 3 times larger than the original size,
   then it will be easy to crop them accurantely and safely. This connects to the last settings option, which follows.
@@ -166,15 +168,18 @@ If `Cropping_After_Rectification` is 1, the program will output an additional ex
 which contains *also* the masks for cropping the rectified images down to the regions of interest.
 
 ### Feedback detection
-The auxiliary C++ program [*detection_check*](src-vis/detection_check.cpp) can be used to provide general feedback regarding the status of the AruCo detection. 
+The auxiliary C++ program [*detection_check*](src-vis/detection_check.cpp) can be used to provide an immediate and general feedback regarding the quality of calibration images and the status of the AruCo detection. When the detected AruCO corners are too low (< 10), the program will also warn the user to potentially retake the image. 
 The function can be used to detect a single image with a Settings file used for intrinsic calibration:
 ```
-$ ./detection_check [path to settings file] [path to img]
+$ ./calibrateWithSettings [path to settings file] [path to img]
 ```
+
 or two images in a stereo pair with the *same* Settings file used for calibration as arguments:
 ```
-$ ./detection_check [path to settings file] [path to img0] [path to img1]
+$ ./calibrateWithSettings [path to settings file] [path to img0] [path to img1]
 ```
+With two arguments provided, the program returns the number of corners detected for the board and the percent of corners detected.
+When three agruments provided, the program returns the number of corners detected for each board from the two stereo viewpoints, and the number of detected corners that are shared between viewpoints.
 
 ## Auxiliary Programs
 ### Image lists
