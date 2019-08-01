@@ -2,69 +2,69 @@
 Here are a list of Calibration boards (pdf and jpg versions) that have already been generated. 
 
 ## Aruco boards
-### [Board 1](AruCo\Boards/board_0-112.jpg): 
+### [Board 1](AruCo%20Boards/board_0-112.jpg): 
 * **Markers**: 0-112 
 * **Number_of_Markers_X**: 8 
 * **Number_of_Markers_Y**: 8 
 * **Marker_Length**: 96 (in pixel)
 * **dictionary**: 11
-### [Board 2](AruCo\Boards/board_113-225.jpg): 
+### [Board 2](AruCo%20Boards/board_113-225.jpg): 
 * **Markers**: 113-225 
 * **Number_of_Markers_X**: 8 
 * **Number_of_Markers_Y**: 8 
 * **Marker_Length**: 96 (in pixel)
 * **dictionary**: 11
-### [Board 3](AruCo\Boards/board_226-319.jpg): 
+### [Board 3](AruCo%20Boards/board_226-319.jpg): 
 * **Markers** 226-319 
 * **Number_of_Markers_X**: 9 
 * **Number_of_Markers_Y**: 6 
 * **Marker_Length**: 96 (in pixel)
 * **dictionary**: 11
-### [Board 4](AruCo\Boards/board_320-515.jpg): 
+### [Board 4](AruCo%20Boards/board_320-515.jpg): 
 * **Markers**: 320-515 
 * **Number_of_Markers_X**: 9 
 * **Number_of_Markers_Y**: 12 
 * **Marker_Length**: 96 (in pixel)
 * **dictionary**: 11
-### [Board 5](AruCo\Boards/board_516-613.jpg): 
+### [Board 5](AruCo%20Boards/board_516-613.jpg): 
 * **Markers**: 516-613 
 * **Number_of_Markers_X**: 7 
 * **Number_of_Markers_Y**: 8 
 * **Marker_Length**: 144 (in pixel)
 * **dictionary**: 11
-### [Board 6](AruCo\Boards/board_614-685.jpg): 
+### [Board 6](AruCo%20Boards/board_614-685.jpg): 
 * **Markers**: 614-685 
 * **Number_of_Markers_X**: 6 
 * **Number_of_Markers_Y**: 7 
 * **Marker_Length**: 192(in pixel)
 * **dictionary**: 11
-### [Board 7](AruCo\Boards/board_686-717.jpg): 
+### [Board 7](AruCo%20Boards/board_686-717.jpg): 
 * **Markers**: 686-717 
 * **Number_of_Markers_X**: 4 
 * **Number_of_Markers_Y**: 5 
 * **Marker_Length**: 360(in pixel)
 * **dictionary**: 11
-### [Board 8](AruCo\Boards/board_718-815.jpg): 
+### [Board 8](AruCo%20Boards/board_718-815.jpg): 
 * **Markers**: 718-815 
 * **Number_of_Markers_X**: 7 
 * **Number_of_Markers_Y**: 8 
 * **Marker_Length**: 243(in pixel)
 * **dictionary**: 11
-### [Board 9](AruCo\Boards/board_816-865.jpg): 
+### [Board 9](AruCo%20Boards/board_816-865.jpg): 
 * **Markers**: 816-865 
 * **Number_of_Markers_X**: 6 
 * **Number_of_Markers_Y**: 5 
 * **Marker_Length**: 192(in pixel)
 * **dictionary**: 11
 ## Charuco boards
-### [Board 10](ChArUco\Boards/Charuco_256.jpg): 
+### [Board 10](ChArUco%20Boards/Charuco_256.jpg): 
 * **Markers**: 256-325
 * **Number_of_Markers_X**: 12 
 * **Number_of_Markers_Y**: 12 
 * **Marker_Length**: 130(in pixel)
 * **Chessboard_side_Length**: 150(in pixel)
 * **dictionary**: 11
-### [Board 11](ChArUco\Boards/Charuco_600.jpg): 
+### [Board 11](ChArUco%20Boards/Charuco_600.jpg): 
 * **Markers**: 600-671
 * **Number_of_Markers_X**: 14 
 * **Number_of_Markers_Y**: 10
