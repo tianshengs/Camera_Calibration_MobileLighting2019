@@ -1,4 +1,4 @@
-BIN = imdiff imageList_creator create_new_chessboard ChArUco
+BIN = imdiff imageList_creator create_new_chessboard ChArCo
 
 
 DBG= -g
