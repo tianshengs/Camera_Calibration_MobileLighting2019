@@ -167,8 +167,10 @@ which contains *also* the masks for cropping the rectified images down to the re
 ## Auxiliary Programs
 
 ### Feedback detection
-The auxiliary C++ program [*detection_check*](src-vis/detection_check.cpp) can be used to provide general feedback regarding the status of the AruCo detection. There are two versions of the program.
-* The version in *src-vis* is the stand-alone version. It takes the two images in a stereo pair and the *same* settings file used for calibration as arguments:
+The auxiliary C++ program [*detection_check*](src-vis/detection_check.cpp) can be used to provide general feedback regarding the status of the AruCo detection. 
+The function can be used to detect a single image:
+
+or two images in a stereo pair with the *same* settings file used for calibration as arguments:
 ```
 $ ./detection_check
   Usage: ./detection_check [path to settings file] [path to img1] [path to img2]
