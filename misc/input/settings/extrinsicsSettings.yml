@@ -20,6 +20,8 @@ Settings:
   # e.g. numMarkersY: [8, 7] if two boards are used
   Num_MarkersX: [8, 8, 12]
   Num_MarkersY: [7, 8, 9]
+  #If Charuco, specify the square length
+  squareLength: [0, 0, 0]
   #The length of the markers in pixels   
   Marker_Length: [108, 72, 72]
   #AruCo dictionary must be the same for all boards in the scene
