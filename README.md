@@ -16,7 +16,7 @@ Benchmark http://vision.middlebury.edu/.
 There are essentially two versions of the main program ([*calibration*](src-vis/calibration.cpp)), which have slightly different features.
 Both versions perform two types of camera calibration (intrinsic and extrinsic).
 Both versions use the OpenCV AruCo moduled. They are controlled by a settings class, which is inputted as a YAML file.
-These settings control input and output features, such as  the ability to save detected,
+These settings control input and output features, such as the ability to save detected,
 undistorted, and rectified images, and the ability to change the calibration type.
 
 ### Calibration w/ visualizations.
@@ -38,7 +38,7 @@ I advise using the files in src-vis when "stand-alone" calibration functionaliti
 ## Installation
 ### Dependencies
 This program requires at least [OpenCV3*](http://opencv.org/releases.html). Since OpenCV3 release, the ArUco library
-has become a built-in module within openCV.  
+has become a built-in module within OpenCV.  
 All programs were developed in OpenCV 3.2, but they will work with all recent OpenCV versions. More on OpenCV compatibility in the section, **Changes Between OpenCV3.2 and OpenCV3.3**. 
 Extensive step-by-step guides about installation can be found on the [OpenCV Tutorials](https://docs.opencv.org/3.2.0/df/d65/tutorial_table_of_content_introduction.html) webpage.
 
@@ -59,7 +59,7 @@ To use this functionality, you must uncomment the other write() function outside
 (check out the [OpenCV Filestorage documentation](http://docs.opencv.org/3.0-rc1/dd/d74/tutorial_file_input_output_with_xml_yml.html) for more information).
 
 Two modes are supported: **INTRINSIC**, **STEREO**.  
-Two calibration patterns are supported: **CHESSBOARD**, **ARUCO_SINGLE**, where CHESSBOARD represents a traditional black-and-white chessboard.
+Two calibration patterns are supported: **CHESSBOARD**, **ARUCO_SINGLE**, **CHARUCO**, where CHESSBOARD represents a traditional black-and-white chessboard and CHARUCO represents a combination of black-and-white chessboard and Aruco board. 
 
 All modes require a YAML/XML [image list](misc/input/imageList) with paths to the input
 [images](misc/input/images), specified by the setting: **imageList_Filename**.
@@ -67,7 +67,7 @@ All modes require a YAML/XML [image list](misc/input/imageList) with paths to th
 ### ArUco Calibration Patterns
 ArUco patterns are barcode patterns, and they are comprised of markers with unique IDs based on a modified Hamming code. 
 Here is an example ArUco chessboard:
-![Sweating is shameful and I never sweat](https://user-images.githubusercontent.com/25497706/62237098-60198280-b39e-11e9-8704-7f93b4985bab.png)
+![image](https://user-images.githubusercontent.com/25497706/62237098-60198280-b39e-11e9-8704-7f93b4985bab.png)
 
 The number of unique IDs depends on the predefined AruCo dictionary. A marker ID is the marker index inside the dictionary it belongs to. For example, the first 3 markers inside a dictionary have IDs: 0, 1, and 2. Note that each dictionary is composed of a different *type* and *number* of markers. The default dictionary for the calibration programs is number 11, i.e. DICT_6X6_1000. Concretely, this dictionary is composed of 1000 unique markers and a marker size of 6x6 bits (DICT_6X6_1000). Markers IDs are important: they are used during detection to check whether a detected square is actually an AruCo marker of interest. 
 
@@ -87,11 +87,11 @@ for more information about all the possible input parameters.
 ### Intrinsic Calibration     
 Intrinsic mode uses OpenCV's [calibrateCamera function](https://docs.opencv.org/3.2.0/d9/d0c/group__calib3d.html#ga3207604e4b1a1758aa66acb6ed5aa65d) to perform intrinsic camera calibration. It requires an imageList with
 images from a single viewpoint ([example set](misc/input/images/intrinsics/)). It can be run
-with  both calibration patterns. The first step of the calibration pipeline is to calculate
-camera intrinsics using a high-quality set of (Aruco or traditional) chessboard images. The images must be collected in a .yml image list.
+with both calibration patterns. The first step of the calibration pipeline is to calculate
+camera intrinsics using a high-quality set of (Aruco, or traditional) chessboard images. The images must be collected in a .yml image list.
 In order to compute intrinsic camera parameters successfully, it is advised to do the following:
 * Take pictures of calibration pattern such that it appears in the corners *and* on the edges of the camera field of view.
-* At each selected position, take pictures of the calibration pattern with various angles: tilted to the left, tilted to the right, tilted backwards. This is necessary for accurate focal lengths estimation.
+* At each selected position, take pictures of the calibration pattern with various angles: tilted to the left, tilted to the right, tilted backwards and tilted forward. This is necessary for accurate focal lengths estimation.
 * Take about 15 pictures. However, try to make each picture as different as possible from the others -- duplicates add more noise than actual useful data points.
 
 Intrinsic calibration can be optimized by modifying the flags in the calibrateCamera function
@@ -118,7 +118,7 @@ not exist (*the path must be created beforehand*).
 Stereo mode uses OpenCV's [stereoCalibrate function](https://docs.opencv.org/3.2.0/d9/d0c/group__calib3d.html#ga246253dcc6de2e0376c599e7d692303a)
 to perform extrinsic calibration. It requires an imageList with image pairs of an
 identical scene from two viewpoints ([example set](misc/input/images/extrinsics/)). The order
-of image paths within the image list is important: it must alternate between viewpoints (left1 right1 left2 right2).
+of image paths within the image list is important: it must alternate between viewpoints (left0 right0 left1 right1).
 With both calibration patterns, the intrinsic input is optional but strongly advised for a good calibration. If it is left at "0," the program will calculate
 independent intrinsics for each viewpoint and input these into the stereoCalibrate function.
 
@@ -216,6 +216,37 @@ Usage: create_new_chessboard [params] [outfile]
                 Output image (.png)
 ```
 
+### New Charuco patterns
+The auxiliary C++ program [*create_new_ChaRuCo boards*](utils/ChaRuCo.cpp) can be used to create new ChaRuCo boards for your own use. The output of `./create_new_chessboard -h` is below:
+```
+Create a ChArUco board image
+Usage: ChArCo [params] outfile 
+
+	-b (value:1)
+		'1': save maps with border, '0': no border
+	--bb (value:1)
+		Number of bits in marker borders
+	-d (value:11)
+		dictionary: DICT_4X4_50=0, DICT_4X4_100=1, DICT_4X4_250=2, 
+                  DICT_4X4_1000=3, DICT_5X5_50=4, DICT_5X5_100=5, DICT_5X5_250=6, DICT_5X5_1000=7, 
+                  DICT_6X6_50=8, DICT_6X6_100=9, DICT_6X6_250=10, DICT_6X6_1000=11, DICT_7X7_50=12, 
+                  DICT_7X7_100=13, DICT_7X7_250=14, DICT_7X7_1000=15, DICT_ARUCO_ORIGINAL = 16
+	-f
+		first marker: range from 1 to [dictionary size]
+	-h (value:true)
+		Number of chessboard squares in Y direction
+	-l
+		Marker side length (in pixels)
+	-s
+		Chessboard square side length (in pixels)
+	--si (value:false)
+		show generated image
+	-w
+		Number of chessboard squares in X direction
+
+	outfile (value:<none>)
+		Output image
+```
 ## Closing Remarks and Tips
 A single change is required if you are using the most recent OpenCV versions (above OpenCV3.2).
 In the function `arucoDetect(...)` in *calibration.cpp*:  
