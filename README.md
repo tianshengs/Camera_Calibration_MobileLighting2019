@@ -201,7 +201,7 @@ Usage: create_new_chessboard [params] [outfile]
                   DICT_6X6_50=8, DICT_6X6_100=9, DICT_6X6_250=10, DICT_6X6_1000=11, DICT_7X7_50=12,  
                   DICT_7X7_100=13, DICT_7X7_250=14, DICT_7X7_1000=15, DICT_ARUCO_ORIGINAL = 16  
         -f
-                first marker: range from 1 to [ictionary size]
+                first marker: range from 1 to [dictionary size]
         -h
                 Number of markers in the Y direction
         -l
@@ -237,7 +237,7 @@ Usage: ChArCo [params] outfile
 	-h (value:true)
 		Number of chessboard squares in Y direction
 	-l
-		Marker side length (in pixels)```
+		Marker side length (in pixels)
 	-s
 		Chessboard square side length (in pixels)
 	--si (value:false)
