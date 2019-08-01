@@ -123,7 +123,7 @@ With both calibration patterns, the intrinsic input is optional but strongly adv
 independent intrinsics for each viewpoint and input these into the stereoCalibrate function.
 
 Extrinsic calibration is the second step of the calibration pipeline, and to be achieved successfully I suggest the following:
-* Capture images with two calibration boards in the scene. It is possible to use two boards by changing the settings file, **Num_of_Boards: 2**. Then, the other AruCo settings must be
+* Capture images with two or more calibration boards in the scene. It is possible to use two boards by changing the settings file, **Num_of_Boards: 2**. Then, the other AruCo settings must be
 specified for each board in the scene. For example:
 ```
 The length of the AruCo markers in pixels
@@ -134,6 +134,7 @@ where one board would have marker length 1.5 inches (108 px) and the other board
 This ensures the efficient acquisition of enough depth data, which is required for a successful computation of the scene depth maps.
 Following this procedure leads to robust and reliable rotation and translation matrices, which are thereby the output of extrinsic calibration.
 * Take about 20 pictures of the calibration patterns from the two stereo viewpoints. It is a good rule of thumb for an accurate calibration pipeline.
+* Picking camera positions for Stereo Calibration is also important. For Stereo rectification, it is good to keep the two positions apart by no more than two times the distance between human's two eyes. 
 
 The program plugs these resulting extrinsics into OpenCV's [stereoRectify function](https://docs.opencv.org/3.2.0/d9/d0c/group__calib3d.html#ga617b1685d4059c6040827800e72ad2b6),
 which calculates the necessary rectification transformations and projection matrices
