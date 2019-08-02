@@ -69,6 +69,8 @@ ArUco patterns are barcode patterns, and they are comprised of markers with uniq
 Here is an example ArUco chessboard:
 ![image](https://user-images.githubusercontent.com/25497706/62237098-60198280-b39e-11e9-8704-7f93b4985bab.png)
 
+[*Here*](calibration%20boards/AruCo%20Boards) are some Aruco chessboards that have been generated and printed for our use during the course of the research. 
+
 The number of unique IDs depends on the predefined AruCo dictionary. A marker ID is the marker index inside the dictionary it belongs to. For example, the first 3 markers inside a dictionary have IDs: 0, 1, and 2. Note that each dictionary is composed of a different *type* and *number* of markers. The default dictionary for the calibration programs is number 11, i.e. DICT_6X6_1000. Concretely, this dictionary is composed of 1000 unique markers and a marker size of 6x6 bits (DICT_6X6_1000). Markers IDs are important: they are used during detection to check whether a detected square is actually an AruCo marker of interest. 
 
 When creating a new AruCo chessboard (using *create_new_chessboard.cpp*), the user will be prompted to enter the "First ID" of the board. For example, if the user chooses the first ID to be 300, and the AruCo chessboard contains 100
@@ -77,6 +79,8 @@ markers, then the board will have IDs: 300, 301, 302, ... 399. It is important t
  #First marker must be between 0 and the dictionary size. For two or more boards, give data as an array.
   First_Marker: [0, 113]
 ```
+
+Moreover, the user also has to specify the number of markers in both X and Y direction, the marker side length and the separation between two consecutive markers in the grid, which should equal to to the marker side length. One thing to note is that the marker side length should be given in pixels when you generate the board. 
 
 To create your own ArUco chessboard, use the [*create_new_chessboard*](utils/create_new_chessboard.cpp)
 utility program. This program will create a new chessboard with unique markers, allowing simultaneous detection of multiple patterns.
