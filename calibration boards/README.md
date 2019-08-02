@@ -58,7 +58,7 @@ Here are a list of Calibration boards (pdf and jpg versions) that have already b
 * **dictionary**: 11
 ## Charuco boards
 ### [Board 10](ChArUco%20Boards/Charuco_256.jpg): 
-* **Markers**: 256-325
+* **Markers**: 256-327
 * **Number_of_Markers_X**: 12 
 * **Number_of_Markers_Y**: 12 
 * **Marker_Length**: 130(in pixel)
