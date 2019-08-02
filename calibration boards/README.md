@@ -1,5 +1,5 @@
 # Calibration boards
-Here are a list of Calibration boards (pdf and jpg versions) that have already been generated. 
+Here are a list of Calibration boards (.pdf, .png, and .jpg versions) that have already been generated. 
 
 ## Aruco boards
 ### [Board 1](AruCo%20Boards/board_0-112.jpg): 
