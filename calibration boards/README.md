@@ -65,7 +65,7 @@ Here are a list of Calibration boards (pdf and jpg versions) that have already b
 * **Chessboard_side_Length**: 150(in pixel)
 * **dictionary**: 11
 ### [Board 11](ChArUco%20Boards/Charuco_600.jpg): 
-* **Markers**: 600-671
+* **Markers**: 600-669
 * **Number_of_Markers_X**: 14 
 * **Number_of_Markers_Y**: 10
 * **Marker_Length**: 100(in pixel)
