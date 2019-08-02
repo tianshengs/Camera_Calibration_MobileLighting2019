@@ -79,9 +79,6 @@ markers, then the board will have IDs: 300, 301, 302, ... 399. It is important t
  #First marker must be between 0 and the dictionary size. For two or more boards, give data as an array.
   First_Marker: [0, 113]
 ```
-
-Moreover, the user also has to specify the number of markers in both X and Y direction, the marker side length and the separation between two consecutive markers in the grid, which should equal to to the marker side length. One thing to note is that the marker side length should be given in pixels when you generate the board. 
-
 To create your own ArUco chessboard, use the [*create_new_chessboard*](utils/create_new_chessboard.cpp)
 utility program. This program will create a new chessboard with unique markers, allowing simultaneous detection of multiple patterns.
 In a terminal, type: 
