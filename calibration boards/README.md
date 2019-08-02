@@ -22,8 +22,8 @@ Here are a list of Calibration boards (pdf and jpg versions) that have already b
 * **dictionary**: 11
 ### [Board 4](AruCo%20Boards/board_320-515.jpg): 
 * **Markers**: 320-515 
-* **Number_of_Markers_X**: 9 
-* **Number_of_Markers_Y**: 12 
+* **Number_of_Markers_X**: 12 
+* **Number_of_Markers_Y**: 9 
 * **Marker_Length**: 96(in pixel)
 * **dictionary**: 11
 ### [Board 5](AruCo%20Boards/board_516-613.jpg): 
